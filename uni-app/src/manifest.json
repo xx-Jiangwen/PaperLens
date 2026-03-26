@@ -1,0 +1,28 @@
+{
+  "name": "PaperLens",
+  "appid": "__UNI__PAPERLENS",
+  "description": "探索前沿，精读论文",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wx83b1dd013bc803c5",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "minified": true
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "devServer": {
+      "port": 3000,
+      "proxy": {
+        "/api": {
+          "target": "http://localhost:8000",
+          "changeOrigin": true
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "appid": "wx83b1dd013bc803c5",
   "pages": [
     "pages/index/index",
     "pages/detail/detail",

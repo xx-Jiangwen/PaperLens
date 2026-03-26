@@ -1,0 +1,13 @@
+.container { padding: 16px; }
+.title { color: #e6edf3; font-size: 16px; font-weight: 600; line-height: 1.5; margin-bottom: 8px; }
+.authors { color: #8b949e; font-size: 13px; margin-bottom: 12px; }
+.tag { background: #1f4168; color: #58a6ff; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-right: 6px; }
+.action-btns { display: flex; gap: 12px; margin: 16px 0; }
+.btn-primary { flex: 1; background: #58a6ff; color: #0d1117; border-radius: 8px; }
+.btn-secondary { flex: 1; background: #21262d; color: #e6edf3; border-radius: 8px; }
+.summary-section { background: #161b22; border-radius: 12px; padding: 16px; margin: 16px 0; }
+.summary-label { color: #58a6ff; font-size: 12px; text-transform: uppercase; margin-bottom: 6px; }
+.summary-text { color: #c9d1d9; font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+.disclaimer { color: #8b949e; font-size: 11px; margin-bottom: 12px; }
+.abstract-text { color: #8b949e; font-size: 13px; line-height: 1.7; }
+.section-title { color: #e6edf3; font-weight: 600; margin-bottom: 12px; }

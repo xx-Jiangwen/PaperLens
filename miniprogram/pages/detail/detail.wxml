@@ -1,0 +1,43 @@
+<view class="container" wx:if="{{paper}}">
+  <view class="title">{{paper.title}}</view>
+  <view class="authors">{{paper.authors.join(', ')}}</view>
+
+  <view class="tags">
+    <text wx:for="{{paper.categories}}" wx:key="*this" class="tag">{{item}}</text>
+  </view>
+
+  <view class="action-btns">
+    <button class="btn-secondary" bindtap="openArxiv">复制链接</button>
+    <button class="btn-primary" bindtap="openPdf">查看 PDF</button>
+  </view>
+
+  <!-- AI 三段式摘要 -->
+  <view class="summary-section">
+    <view class="section-header">
+      <text class="section-title">AI 结构化摘要</text>
+    </view>
+    <view wx:if="{{summary.what}}">
+      <view class="summary-item">
+        <view class="summary-label">问题与方案</view>
+        <view class="summary-text">{{summary.what}}</view>
+      </view>
+      <view class="summary-item">
+        <view class="summary-label">技术路径</view>
+        <view class="summary-text">{{summary.how}}</view>
+      </view>
+      <view class="summary-item">
+        <view class="summary-label">贡献与意义</view>
+        <view class="summary-text">{{summary.why}}</view>
+      </view>
+      <view class="disclaimer">内容由 AI 生成，请以原文为准</view>
+      <button class="btn-ghost" bindtap="speakSummary">复制摘要文本</button>
+    </view>
+    <view wx:else class="empty">暂无 AI 摘要，将在后台自动生成</view>
+  </view>
+
+  <!-- 原文摘要 -->
+  <view class="abstract-section">
+    <view class="section-title">原文摘要</view>
+    <view class="abstract-text">{{paper.abstract}}</view>
+  </view>
+</view>

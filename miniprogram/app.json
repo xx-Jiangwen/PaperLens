@@ -1,0 +1,22 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/settings/settings"
+  ],
+  "tabBar": {
+    "color": "#8b949e",
+    "selectedColor": "#58a6ff",
+    "backgroundColor": "#0d1117",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "今日论文" },
+      { "pagePath": "pages/settings/settings", "text": "设置" }
+    ]
+  },
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#0d1117",
+    "navigationBarTitleText": "PaperLens",
+    "navigationBarTextStyle": "white"
+  }
+}

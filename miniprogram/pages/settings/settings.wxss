@@ -1,0 +1,10 @@
+.container { padding: 16px; }
+.section { background: #161b22; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.section-title { color: #e6edf3; font-weight: 600; margin-bottom: 8px; }
+.hint { color: #8b949e; font-size: 12px; margin-bottom: 16px; }
+.field { margin-bottom: 14px; }
+.label { color: #8b949e; font-size: 12px; margin-bottom: 6px; }
+.input { background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; width: 100%; }
+.btn-ghost { background: transparent; border: 1px solid #30363d; color: #8b949e; border-radius: 8px; margin-top: 8px; }
+.btn-primary { background: #58a6ff; color: #0d1117; border-radius: 10px; font-weight: 600; }
+.save-btn { margin-top: 8px; }

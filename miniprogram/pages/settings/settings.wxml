@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="section">
+    <view class="section-title">大模型配置（BYOK）</view>
+    <view class="hint">填入你自己的 API Key，支持 OpenAI、DeepSeek、本地 Ollama 等</view>
+
+    <view class="field">
+      <view class="label">API Base URL</view>
+      <input class="input" value="{{form.llm_base_url}}" placeholder="https://api.openai.com/v1"
+             data-key="llm_base_url" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="label">Model Name</view>
+      <input class="input" value="{{form.llm_model_name}}" placeholder="gpt-4o-mini"
+             data-key="llm_model_name" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <view class="label">API Key</view>
+      <input class="input" password value="{{form.llm_api_key}}"
+             placeholder="{{apiKeySet ? '已设置（留空不修改）' : '输入 API Key'}}"
+             data-key="llm_api_key" bindinput="onInput" />
+    </view>
+
+    <button class="btn-ghost" bindtap="testLLM" loading="{{testing}}">测试连通性</button>
+  </view>
+
+  <button class="btn-primary save-btn" bindtap="save">保存设置</button>
+</view>

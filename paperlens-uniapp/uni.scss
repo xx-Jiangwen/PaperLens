@@ -1,0 +1,64 @@
+/**
+ * PaperLens 深色主题样式变量
+ */
+
+/* ========== 色彩 Token ========== */
+
+/* 背景色 */
+$color-bg-base: #0d1117;
+$color-bg-card: #161b22;
+$color-bg-input: #0d1117;
+
+/* 边框色 */
+$color-border: #30363d;
+
+/* 文字色 */
+$color-text-primary: #e6edf3;
+$color-text-secondary: #c9d1d9;
+$color-text-muted: #8b949e;
+
+/* 强调色 */
+$color-accent: #58a6ff;
+$color-accent-bg: #1f4168;
+
+/* 状态色 */
+$color-success: #3fb950;
+$color-warning: #f0ad4e;
+$color-error: #dd524d;
+
+/* ========== 字号规范 ========== */
+$font-size-xs: 22rpx;
+$font-size-sm: 24rpx;
+$font-size-base: 28rpx;
+$font-size-lg: 32rpx;
+$font-size-xl: 36rpx;
+
+/* ========== 间距规范 ========== */
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+
+/* ========== 圆角规范 ========== */
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-xl: 40rpx;
+
+/* ========== uni-app 内置变量覆盖 ========== */
+$uni-color-primary: #58a6ff;
+$uni-color-success: #3fb950;
+$uni-color-warning: #f0ad4e;
+$uni-color-error: #dd524d;
+
+$uni-text-color: #e6edf3;
+$uni-text-color-inverse: #0d1117;
+$uni-text-color-grey: #8b949e;
+$uni-text-color-placeholder: #6e7681;
+
+$uni-bg-color: #161b22;
+$uni-bg-color-grey: #0d1117;
+$uni-bg-color-hover: #21262d;
+
+$uni-border-color: #30363d;

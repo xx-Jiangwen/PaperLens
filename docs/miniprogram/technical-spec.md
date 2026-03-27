@@ -43,22 +43,39 @@ PaperLens 是一个 arXiv 论文聚合 + AI 增强阅读工具。微信小程序
 
 | 层级 | 技术选型 | 说明 |
 |---|---|---|
-| **运行时** | 微信小程序原生框架（WXML/WXSS/JS） | 无编译链，审核友好，包体积小 |
-| **后端通信** | `wx.request` + REST API | 基于 FastAPI 后端 |
+| **运行时** | uni-app（Vue 3） | Vue 语法、多端支持、社区成熟 |
+| **后端通信** | `uni.request` + REST API | 基于 FastAPI 后端 |
 | **认证** | 微信 OAuth + JWT Token | 存储于 Storage |
 | **UI 组件库** | 无（V1.0 使用原生组件） | 避免第三方依赖，减少包体积 |
 
+> **注意**：原计划使用微信小程序原生框架，已于 2026-03-27 改为 uni-app（Vue 3）。详见 [ADR-002](../adr/002-native-miniprogram.md)。
+
 ### 1.3 小程序配置
 
-#### app.json 关键配置
+#### pages.json 关键配置
 
 ```json
 {
   "pages": [
-    "pages/index/index",
-    "pages/detail/detail",
-    "pages/settings/settings"
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "今日论文" }
+    },
+    {
+      "path": "pages/detail/detail",
+      "style": { "navigationBarTitleText": "论文详情" }
+    },
+    {
+      "path": "pages/settings/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    }
   ],
+  "globalStyle": {
+    "navigationBarBackgroundColor": "#0d1117",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "PaperLens",
+    "backgroundColor": "#0d1117"
+  },
   "tabBar": {
     "list": [
       { "pagePath": "pages/index/index", "text": "今日论文" },
@@ -66,34 +83,30 @@ PaperLens 是一个 arXiv 论文聚合 + AI 增强阅读工具。微信小程序
     ],
     "backgroundColor": "#0d1117",
     "selectedColor": "#58a6ff"
-  },
-  "window": {
-    "navigationBarBackgroundColor": "#0d1117",
-    "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "PaperLens",
-    "backgroundColor": "#0d1117"
   }
 }
 ```
 
 #### 所需权限
 
-- `wx.login`：微信登录
-- `wx.request`：网络请求（需配置合法域名）
-- `wx.setClipboardData`：复制链接到剪贴板
+- `uni.login`：微信登录
+- `uni.request`：网络请求（需配置合法域名）
+- `uni.setClipboardData`：复制链接到剪贴板
 
 ### 1.4 开发环境搭建
 
 #### 前置要求
 
+- HBuilderX >= 3.8.0
 - 微信开发者工具 >= 1.06.2307260
 - 后端服务已启动（本地或远程）
 
 #### 本地开发配置
 
-1. 打开微信开发者工具，导入 `miniprogram/` 目录
-2. 在"详情 → 本地设置"中勾选"不校验合法域名"
-3. 修改 `api/client.js` 中的 `BASE_URL` 为本地后端地址（如 `http://localhost:8000/api/v1`）
+1. 使用 HBuilderX 打开 `paperlens-uniapp/` 目录
+2. 运行 → 运行到小程序模拟器 → 微信开发者工具
+3. 在微信开发者工具中勾选"不校验合法域名"
+4. 修改 `api/client.js` 中的 `BASE_URL` 为本地后端地址
 
 #### 环境切换策略
 
@@ -110,29 +123,27 @@ const BASE_URL = 'https://api.paperlens.io/api/v1';  // 生产环境
 ### 2.1 目录结构
 
 ```
-miniprogram/
-├── app.js                # App 生命周期、全局状态、wxLogin()
-├── app.json              # 页面注册、tabBar、window 配置
-├── app.wxss              # 全局样式（仅背景色、字体）
+paperlens-uniapp/
+├── App.vue                # App 生命周期、全局状态
+├── main.js                # 应用入口
+├── pages.json             # 页面注册、tabBar、window 配置
+├── manifest.json          # 应用配置
+├── uni.scss               # 全局样式变量
 ├── api/
-│   ├── client.js         # wx.request 封装、Token 注入
-│   └── papers.js         # 论文相关 API
+│   ├── client.js          # uni.request 封装、Token 注入
+│   ├── papers.js          # 论文相关 API
+│   ├── auth.js            # 认证 API
+│   └── settings.js        # 设置 API
+├── stores/
+│   └── user.js            # 用户状态管理
 ├── pages/
-│   ├── index/            # 论文列表页（tabBar）
-│   │   ├── index.js
-│   │   ├── index.wxml
-│   │   └── index.wxss
-│   ├── detail/           # 论文详情页
-│   │   ├── detail.js
-│   │   ├── detail.wxml
-│   │   └── detail.wxss
-│   └── settings/         # 设置页（tabBar）
-│       ├── settings.js
-│       ├── settings.wxml
-│       └── settings.wxss
-└── components/           # 可复用组件（V1.1 促进）
-    ├── paper-card/
-    └── summary-panel/
+│   ├── index/             # 论文列表页（tabBar）
+│   │   └── index.vue
+│   ├── detail/            # 论文详情页
+│   │   └── detail.vue
+│   └── settings/          # 设置页（tabBar）
+│       └── settings.vue
+└── static/                # 静态资源
 ```
 
 ### 2.2 命名规范
@@ -140,86 +151,124 @@ miniprogram/
 | 类型 | 规范 | 示例 |
 |---|---|---|
 | 页面目录 | `kebab-case`，与路由一致 | `pages/detail/detail` |
-| 组件目录 | `kebab-case` | `components/paper-card` |
+| Vue 组件 | `PascalCase` | `PaperCard.vue` |
 | JS 变量/函数 | `camelCase` | `getPapers`, `activeCategory` |
-| WXML class | `kebab-case` | `paper-card`, `summary-section` |
+| CSS class | `kebab-case` | `paper-card`, `summary-section` |
 | `data-*` 属性 | 小写，单词用连字符 | `data-id`, `data-cat` |
 | API 模块导出 | 命名导出，不用 default | `export function getPapers() {}` |
 
 ### 2.3 页面注册顺序
 
-`app.json` 中 `pages` 数组的第一个页面为启动页：
+`pages.json` 中 `pages` 数组的第一个页面为启动页：
 
 ```json
-"pages": [
-  "pages/index/index",      // 启动页
-  "pages/detail/detail",
-  "pages/settings/settings"
-]
+{
+  "pages": [
+    {
+      "path": "pages/index/index",      // 启动页
+      "style": { "navigationBarTitleText": "今日论文" }
+    },
+    {
+      "path": "pages/detail/detail",
+      "style": { "navigationBarTitleText": "论文详情" }
+    },
+    {
+      "path": "pages/settings/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    }
+  ]
+}
 ```
 
 ---
 
 ## 3. 全局状态与 App 生命周期
 
-### 3.1 globalData 契约
+### 3.1 用户状态管理
 
 ```javascript
-// app.js
-App({
-  globalData: {
+// stores/user.js
+import { wxLogin } from '../api/auth'
+
+const userStore = {
+  state: {
     token: null,    // string | null — JWT Token
-    userId: null,   // number | null — 用户 ID（仅展示用）
+    userId: null,   // number | null — 用户 ID
   },
 
-  onLaunch() {
+  init() {
     // 从 Storage 恢复 Token
-    const token = wx.getStorageSync('token');
-    if (token) {
-      this.globalData.token = token;
-    }
+    this.state.token = uni.getStorageSync('token') || null
+    this.state.userId = uni.getStorageSync('userId') || null
   },
 
-  // 微信登录（返回 Promise）
-  wxLogin() {
+  setToken(token, userId) {
+    this.state.token = token
+    this.state.userId = userId
+    uni.setStorageSync('token', token)
+    uni.setStorageSync('userId', userId)
+  },
+
+  clear() {
+    this.state.token = null
+    this.state.userId = null
+    uni.removeStorageSync('token')
+    uni.removeStorageSync('userId')
+  },
+
+  async performWxLogin() {
     return new Promise((resolve, reject) => {
-      if (this.globalData.token) {
-        resolve(this.globalData.token);
-        return;
-      }
-
-      wx.login({
+      uni.login({
         success: (res) => {
-          const code = res.code;
+          const code = res.code
           // 调用后端登录接口
-          wx.request({
-            url: 'https://api.paperlens.io/api/v1/auth/wx-login',
-            method: 'POST',
-            data: { code },
-            success: (loginRes) => {
-              const { token, user_id } = loginRes.data.data;
-              this.globalData.token = token;
-              this.globalData.userId = user_id;
-              wx.setStorageSync('token', token);
-              resolve(token);
-            },
-            fail: reject,
-          });
+          wxLogin(code).then((loginRes) => {
+            if (loginRes.code === 200 && loginRes.data) {
+              this.setToken(loginRes.data.token, loginRes.data.user_id)
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+          })
         },
-        fail: reject,
-      });
-    });
-  },
-});
+        fail: () => resolve(false)
+      })
+    })
+  }
+}
+
+export default userStore
 ```
 
-### 3.2 Token 持久化
+### 3.2 App.vue 入口
 
-- **存储**：`wx.setStorageSync('token', token)`
-- **读取**：`wx.getStorageSync('token')`
-- **清除**：`wx.removeStorageSync('token')`
+```vue
+<script>
+import userStore from './stores/user.js'
 
-### 3.3 已知限制（V1）
+export default {
+  onLaunch() {
+    // 初始化用户状态
+    userStore.init()
+  }
+}
+</script>
+
+<style>
+page {
+  background-color: #0d1117;
+  color: #e6edf3;
+}
+</style>
+```
+
+### 3.3 Token 持久化
+
+- **存储**：`uni.setStorageSync('token', token)`
+- **读取**：`uni.getStorageSync('token')`
+- **清除**：`uni.removeStorageSync('token')`
+
+### 3.4 已知限制（V1）
 
 - 无 Token 过期检测（依赖后端返回 401）
 - 无 Token 刷新机制（V1.1 补充）
@@ -236,23 +285,24 @@ App({
 const BASE_URL = 'https://api.paperlens.io/api/v1';
 
 /**
- * 封装 wx.request
+ * 封装 uni.request
  * @param {string} url - 相对路径（不含 BASE_URL）
- * @param {object} options - wx.request 参数
+ * @param {object} options - uni.request 参数
  * @returns {Promise} - 返回 res.data（含 {code, msg, data}）
  */
 export function request(url, options = {}) {
   return new Promise((resolve, reject) => {
-    const token = wx.getStorageSync('token');
+    const token = uni.getStorageSync('token');
 
-    wx.request({
+    uni.request({
       url: `${BASE_URL}${url}`,
+      method: options.method || 'GET',
+      data: options.data || {},
       header: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.header,
       },
-      ...options,
       success: (res) => {
         resolve(res.data);  // 返回完整响应体 {code, msg, data}
       },
@@ -324,17 +374,18 @@ export function getPaper(id) {
 api/
 ├── client.js       (V1)
 ├── papers.js       (V1)
+├── auth.js         (V1)
+├── settings.js     (V1)
 ├── ai.js           (V2 — SSE 流式摘要)
 ├── bookmarks.js    (V1.1 — 收藏)
-├── settings.js     (V1.1 — 从 settings 页面抽取)
-└── auth.js         (V2 — Token 刷新)
+└── ...
 ```
 
 ### 4.5 SSE 流式摘要设计（V2）
 
-微信小程序不原生支持 `EventSource`，V2 需采用以下方案之一：
+uni-app 微信小程序不原生支持 `EventSource`，V2 需采用以下方案之一：
 
-- **方案 A**：`wx.request` + `enableChunkedTransfer: true`（需基础库 2.20.0+）
+- **方案 A**：`uni.request` + `responseType: 'text'` + 手动解析 SSE
 - **方案 B**：云函数代理 SSE → WebSocket
 
 **SSE 数据协议**：
@@ -373,8 +424,8 @@ onLoad() {
 },
 
 onPullDownRefresh() {
-  this.fetchPapers().then(() => {
-    wx.stopPullDownRefresh();
+  this.fetchPapers().finally(() => {
+    uni.stopPullDownRefresh();
   });
 },
 ```
@@ -382,95 +433,95 @@ onPullDownRefresh() {
 #### 核心方法
 
 ```javascript
-fetchPapers() {
-  this.setData({ loading: true });
+methods: {
+  async fetchPapers() {
+    this.loading = true;
 
-  const { activeCategory } = this.data;
-  const params = activeCategory ? { category: activeCategory } : {};
-
-  return getPapers(params)
-    .then((res) => {
-      if (res.code === 200) {
-        this.setData({ papers: res.data });
+    try {
+      const { activeCategory } = this;
+      let res;
+      if (activeCategory && activeCategory !== '全部') {
+        res = await getPapers({ category: activeCategory });
       } else {
-        wx.showToast({ title: res.msg, icon: 'error' });
+        res = await getTodayPapers();
       }
-    })
-    .catch(() => {
-      wx.showToast({ title: '加载失败', icon: 'error' });
-    })
-    .finally(() => {
-      this.setData({ loading: false });
+
+      if (res.code === 200) {
+        this.papers = res.data;
+      } else {
+        uni.showToast({ title: res.msg, icon: 'none' });
+      }
+    } catch (e) {
+      uni.showToast({ title: '加载失败', icon: 'none' });
+    } finally {
+      this.loading = false;
+    }
+  },
+
+  onCategoryTap(e) {
+    const cat = e.currentTarget.dataset.cat;
+    this.activeCategory = cat;
+    this.fetchPapers();
+  },
+
+  onPaperTap(e) {
+    const id = e.currentTarget.dataset.id;
+    uni.navigateTo({
+      url: `/pages/detail/detail?id=${encodeURIComponent(id)}`,
     });
-},
-
-onCategoryTap(e) {
-  const cat = e.currentTarget.dataset.cat;
-  this.setData({ activeCategory: cat });
-  this.fetchPapers();
-},
-
-onPaperTap(e) {
-  const id = e.currentTarget.dataset.id;
-  wx.navigateTo({
-    url: `/pages/detail/detail?id=${encodeURIComponent(id)}`,
-  });
-},
+  },
+}
 ```
 
-#### WXML 结构
+#### Vue 模板结构
 
-```xml
-<view class="container">
-  <!-- 分类筛选滚动条 -->
-  <scroll-view class="categories" scroll-x>
-    <view
-      class="cat-tag {{activeCategory === '' ? 'active' : ''}}"
-      data-cat=""
-      bindtap="onCategoryTap"
-    >全部</view>
-    <view
-      wx:for="{{categories}}"
-      wx:key="*this"
-      class="cat-tag {{activeCategory === item ? 'active' : ''}}"
-      data-cat="{{item}}"
-      bindtap="onCategoryTap"
-    >{{item}}</view>
-  </scroll-view>
+```html
+<template>
+  <view class="container">
+    <!-- 分类筛选滚动条 -->
+    <scroll-view class="categories" scroll-x>
+      <view
+        v-for="(item, index) in categories"
+        :key="index"
+        :class="['cat-tag', activeCategory === item ? 'active' : '']"
+        :data-cat="item"
+        @tap="onCategoryTap"
+      >{{ item }}</view>
+    </scroll-view>
 
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <!-- 加载状态 -->
+    <view v-if="loading" class="loading">加载中...</view>
 
-  <!-- 论文列表 -->
-  <view wx:else class="papers">
-    <view
-      wx:for="{{papers}}"
-      wx:key="id"
-      class="paper-card"
-      data-id="{{item.id}}"
-      bindtap="onPaperTap"
-    >
-      <view class="tags">
-        <text
-          wx:for="{{item.categories}}"
-          wx:if="{{index < 2}}"
-          wx:key="*this"
-          class="tag"
-        >{{item}}</text>
-      </view>
-      <view class="title">{{item.title}}</view>
-      <view class="authors">{{item.authors[0]}} 等</view>
-      <view class="summary-status status-{{item.summary_status}}">
-        {{item.summary_status === 'done' ? 'AI 摘要已生成' : 'AI 摘要生成中'}}
+    <!-- 论文列表 -->
+    <view v-else class="papers">
+      <view
+        v-for="paper in papers"
+        :key="paper.id"
+        class="paper-card"
+        :data-id="paper.id"
+        @tap="onPaperTap"
+      >
+        <view class="tags">
+          <text
+            v-for="(cat, catIndex) in paper.categories.slice(0, 2)"
+            :key="catIndex"
+            class="tag"
+          >{{ cat }}</text>
+        </view>
+        <view class="title">{{ paper.title }}</view>
+        <view class="authors">{{ paper.authors[0] }} 等</view>
+        <view :class="['summary-status', paper.summary_status]">
+          {{ paper.summary_status === 'done' ? 'AI 摘要已生成' : 'AI 摘要生成中' }}
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 空状态 -->
-  <view wx:if="{{!loading && papers.length === 0}}" class="empty">
-    暂无论文
+    <!-- 空状态 -->
+    <view v-if="!loading && papers.length === 0" class="empty">
+      暂无论文
+    </view>
   </view>
-</view>
+</template>
 ```
 
 #### V2 扩展点
@@ -948,20 +999,22 @@ this.triggerEvent('speak');
 ### 8.3 导航规则
 
 - **tabBar 页面**：点击 tabBar 切换（无需代码）
-- **非 tabBar 页面**：使用 `wx.navigateTo`（产生返回箭头）
-- **禁止使用** `wx.redirectTo`（会移除返回能力）
+- **非 tabBar 页面**：使用 `uni.navigateTo`（产生返回箭头）
+- **禁止使用** `uni.redirectTo`（会移除返回能力）
 
 ### 8.4 V2 tabBar 扩展计划
 
 V1.1 添加"收藏"页，tabBar 扩展为三项：
 
 ```json
-"tabBar": {
-  "list": [
-    { "pagePath": "pages/index/index", "text": "今日论文" },
-    { "pagePath": "pages/bookmarks/bookmarks", "text": "收藏" },
-    { "pagePath": "pages/settings/settings", "text": "设置" }
-  ]
+{
+  "tabBar": {
+    "list": [
+      { "pagePath": "pages/index/index", "text": "今日论文" },
+      { "pagePath": "pages/bookmarks/bookmarks", "text": "收藏" },
+      { "pagePath": "pages/settings/settings", "text": "设置" }
+    ]
+  }
 }
 ```
 
@@ -975,9 +1028,9 @@ V1.1 添加"收藏"页，tabBar 扩展为三项：
 用户进入需要认证的功能
         │
         ▼
-页面调用 app.wxLogin()
+页面调用 userStore.performWxLogin()
         │
-        ├── wx.login() ──► 微信服务器 ──► 返回 { code }
+        ├── uni.login() ──► 微信服务器 ──► 返回 { code }
         │
         ├── POST /api/v1/auth/wx-login { code }
         │       │
@@ -987,9 +1040,9 @@ V1.1 添加"收藏"页，tabBar 扩展为三项：
         │        → 签发 JWT（7 天有效期）
         │        → 返回 { token, user_id }
         │
-        ├── 存储 token 到 globalData + Storage
+        ├── 存储 token 到 state + Storage
         │
-        └── resolve(token) ──► 调用方继续执行
+        └── resolve(true) ──► 调用方继续执行
 ```
 
 ### 9.2 鉴权需求矩阵
@@ -1065,11 +1118,11 @@ request('/settings/test-llm', { method: 'POST' })
 
 ### 11.1 Toast 规范
 
-- **成功**：`wx.showToast({ title: '操作成功', icon: 'success' })`
-- **失败**：`wx.showToast({ title: res.msg, icon: 'error' })`
-- **提示**：`wx.showToast({ title: '提示文本', icon: 'none' })`
+- **成功**：`uni.showToast({ title: '操作成功', icon: 'success' })`
+- **失败**：`uni.showToast({ title: res.msg, icon: 'none' })`
+- **提示**：`uni.showToast({ title: '提示文本', icon: 'none' })`
 
-**避免使用 `wx.showModal`** 用于常规错误（侵入性强）。
+**避免使用 `uni.showModal`** 用于常规错误（侵入性强）。
 
 ### 11.2 Loading 状态清单
 
@@ -1091,9 +1144,9 @@ request('/settings/test-llm', { method: 'POST' })
 
 | 位置 | 问题 | 优先级 |
 |---|---|---|
-| `index.js:onCategoryTap` | 分类筛选失败静默 | 中 |
-| `settings.js:onLoad` | 无 Token 时不提示 | 中 |
-| `detail.js:openPdf` | 复制后提示不够明显 | 低 |
+| `pages/index/index.vue` onCategoryTap | 分类筛选失败静默 | 中 |
+| `pages/settings/settings.vue` onLoad | 无 Token 时不提示 | 中 |
+| `pages/detail/detail.vue` openPdf | 复制后提示不够明显 | 低 |
 
 ---
 
@@ -1101,8 +1154,8 @@ request('/settings/test-llm', { method: 'POST' })
 
 | 功能 | V1 插入点 | 实现说明 |
 |---|---|---|
-| SSE 流式摘要 | `detail.js` `generating` 状态 | `wx.request` + `enableChunkedTransfer` 或云函数代理 |
-| TTS 播放 | `detail.js` `speakSummary()` | `wx.createInnerAudioContext` + 后端 TTS 接口 |
+| SSE 流式摘要 | `pages/detail/detail.vue` generating 状态 | `uni.request` + 手动解析 SSE 或云函数代理 |
+| TTS 播放 | `pages/detail/detail.vue` speakSummary() | `uni.createInnerAudioContext` + 后端 TTS 接口 |
 | 收藏 | 新增 `api/bookmarks.js`、`pages/bookmarks` | 后端接口已存在，需登录 |
 | 搜索 | `pages/index` 顶部搜索框 | `getPapers({ q })` 已支持 |
 | 偏好分类 | `pages/settings` 多选芯片 | `preferred_categories` 字段已存在 |
@@ -1114,13 +1167,11 @@ request('/settings/test-llm', { method: 'POST' })
 
 | 问题 | 位置 | 优先级 | 建议修复版本 |
 |---|---|---|---|
-| PDF 按钮无实际跳转 | `detail.js:openPdf` | 高 | V1.1 |
-| 分类筛选错误静默 | `index.js:onCategoryTap` | 中 | V1.1 |
-| 设置页未登录不提示 | `settings.js:onLoad` | 中 | V1.1 |
+| PDF 按钮无实际跳转 | `pages/detail/detail.vue` openPdf | 高 | V1.1 |
+| 分类筛选错误静默 | `pages/index/index.vue` onCategoryTap | 中 | V1.1 |
+| 设置页未登录不提示 | `pages/settings/settings.vue` onLoad | 中 | V1.1 |
 | 无 401 拦截器 | `api/client.js` | 中 | V1.1 |
-| 无 Token 过期检测 | `app.js` | 中 | V1.1 |
-| CSS Token 重复 | `*.wxss` | 低 | V1.1 |
-| 组件未促进 | `components/` | 低 | V1.1（按需） |
+| 无 Token 过期检测 | `stores/user.js` | 中 | V1.1 |
 
 ---
 

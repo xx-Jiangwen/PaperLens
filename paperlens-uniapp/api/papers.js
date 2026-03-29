@@ -30,6 +30,16 @@ export function getPapers(params = {}) {
 }
 
 /**
+ * 搜索论文
+ * @param {string} query - 搜索关键词
+ * @param {object} options - { page?, size? }
+ * @returns {Promise}
+ */
+export function searchPapers(query, options = {}) {
+  return getPapers({ q: query, ...options })
+}
+
+/**
  * 获取论文详情
  * @param {string} id - 论文 ID
  * @returns {Promise}

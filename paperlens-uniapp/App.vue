@@ -16,20 +16,46 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import '@/styles/variables.scss';
+
 /* 全局样式 */
 page {
-	background-color: #0d1117;
-	color: #e6edf3;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+	background-color: $color-bg-grouped;
+	color: $color-text-primary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	font-size: $font-size-body;
+	line-height: $line-height-normal;
 }
 
 /* 公共布局类 */
-.uni-row {
+.flex-row {
+	display: flex;
 	flex-direction: row;
 }
 
-.uni-column {
+.flex-column {
+	display: flex;
 	flex-direction: column;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+	display: none;
+	width: 0;
+	height: 0;
+}
+
+/* 按钮重置 */
+button {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: none;
+	line-height: inherit;
+}
+
+button::after {
+	border: none;
 }
 </style>

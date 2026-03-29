@@ -1,53 +1,99 @@
 {
 	"pages": [
 		{
-			"path": "pages/index/index",
+			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "今日论文",
-				"navigationBarBackgroundColor": "#0d1117",
-				"navigationBarTextStyle": "white",
-				"backgroundColor": "#0d1117",
+				"navigationBarTitleText": "PaperLens",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7",
 				"enablePullDownRefresh": true
 			}
 		},
 		{
-			"path": "pages/detail/detail",
+			"path": "pages/home/search",
 			"style": {
-				"navigationBarTitleText": "论文详情",
-				"navigationBarBackgroundColor": "#0d1117",
-				"navigationBarTextStyle": "white",
-				"backgroundColor": "#0d1117"
+				"navigationBarTitleText": "搜索",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
 			}
 		},
 		{
-			"path": "pages/settings/settings",
+			"path": "pages/home/detail",
+			"style": {
+				"navigationBarTitleText": "论文详情",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
+			}
+		},
+		{
+			"path": "pages/profile/index",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
+			}
+		},
+		{
+			"path": "pages/profile/bookmarks",
+			"style": {
+				"navigationBarTitleText": "收藏夹",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/profile/settings",
 			"style": {
 				"navigationBarTitleText": "设置",
-				"navigationBarBackgroundColor": "#0d1117",
-				"navigationBarTextStyle": "white",
-				"backgroundColor": "#0d1117"
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
+			}
+		},
+		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
+			}
+		},
+		{
+			"path": "pages/auth/onboarding",
+			"style": {
+				"navigationBarTitleText": "选择兴趣",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"backgroundColor": "#F2F2F7"
 			}
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "white",
+		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "PaperLens",
-		"navigationBarBackgroundColor": "#0d1117",
-		"backgroundColor": "#0d1117"
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F2F2F7"
 	},
 	"tabBar": {
-		"color": "#8b949e",
-		"selectedColor": "#58a6ff",
-		"backgroundColor": "#0d1117",
-		"borderStyle": "black",
+		"color": "#86868B",
+		"selectedColor": "#007AFF",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
 		"list": [
 			{
-				"pagePath": "pages/index/index",
-				"text": "今日论文"
+				"pagePath": "pages/home/index",
+				"text": "首页"
 			},
 			{
-				"pagePath": "pages/settings/settings",
-				"text": "设置"
+				"pagePath": "pages/profile/index",
+				"text": "我的"
 			}
 		]
 	},

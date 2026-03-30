@@ -70,6 +70,9 @@ const userStore = {
 
       if (res.code === 200 && res.data) {
         this.setToken(res.data.token, res.data.user_id)
+        if (res.data.is_new_user) {
+          uni.setStorageSync('is_new_user', true)
+        }
         return true
       }
 

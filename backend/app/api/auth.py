@@ -43,7 +43,9 @@ async def wx_login(body: dict, db: DbSession):
     result = await db.execute(select(User).where(User.openid == openid))
     user = result.scalar_one_or_none()
 
+    is_new_user = False
     if not user:
+        is_new_user = True
         user = User(openid=openid, union_id=union_id, source="miniprogram")
         db.add(user)
         await db.commit()
@@ -54,7 +56,7 @@ async def wx_login(body: dict, db: DbSession):
 
     # 生成 JWT Token
     token = _create_token(user.id)
-    return {"code": 200, "msg": "success", "data": {"token": token, "user_id": user.id}}
+    return {"code": 200, "msg": "success", "data": {"token": token, "user_id": user.id, "is_new_user": is_new_user}}
 
 
 def _create_token(user_id: int) -> str:

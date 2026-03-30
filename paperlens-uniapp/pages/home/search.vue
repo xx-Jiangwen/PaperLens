@@ -46,7 +46,7 @@
 				:key="paper.id"
 				:paper="paper"
 				:show-actions="false"
-				@tap="goToDetail"
+				@select="goToDetail"
 			/>
 		</view>
 

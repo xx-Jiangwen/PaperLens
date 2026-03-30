@@ -13,7 +13,7 @@
 				:paper="bookmark.paper || bookmark"
 				:show-actions="false"
 				:is-bookmarked="true"
-				@tap="goToDetail"
+				@select="goToDetail"
 			/>
 		</view>
 

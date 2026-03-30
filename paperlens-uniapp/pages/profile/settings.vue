@@ -1,5 +1,16 @@
 <template>
 	<view class="page">
+		<!-- 昵称 -->
+		<view class="section" v-if="isLoggedIn">
+			<view class="section-title">昵称</view>
+			<input
+				class="nickname-input"
+				v-model="nickname"
+				placeholder="输入昵称"
+				maxlength="20"
+			/>
+		</view>
+
 		<!-- 兴趣方向 -->
 		<view class="section">
 			<view class="section-title">兴趣方向</view>
@@ -29,40 +40,9 @@
 			</view>
 		</view>
 
-		<!-- BYOK 配置 -->
-		<view class="section">
-			<view class="section-title">大模型配置（BYOK）</view>
-			<view class="section-hint">支持 OpenAI、DeepSeek、本地 Ollama 等</view>
-
-			<view class="field">
-				<view class="label">API Base URL</view>
-				<input
-					class="input"
-					v-model="form.llm_base_url"
-					placeholder="https://api.openai.com/v1"
-				/>
-			</view>
-
-			<view class="field">
-				<view class="label">模型名称</view>
-				<input
-					class="input"
-					v-model="form.llm_model_name"
-					placeholder="gpt-4o-mini"
-				/>
-			</view>
-
-			<view class="field">
-				<view class="label">API Key</view>
-				<input
-					class="input"
-					type="password"
-					v-model="form.llm_api_key"
-					:placeholder="form.llm_api_key_set ? '已设置（留空不修改）' : '输入 API Key'"
-				/>
-			</view>
-
-			<button class="btn-test" @tap="testLLM">测试连通性</button>
+		<!-- 退出登录 -->
+		<view class="logout-section" v-if="isLoggedIn">
+			<button class="btn-logout" @tap="logout">退出登录</button>
 		</view>
 
 		<!-- 保存按钮 -->
@@ -75,7 +55,7 @@
 <script>
 import userStore from '@/stores/user.js'
 import { useSettingsStore } from '@/stores/settings.js'
-import { testLLM as testLLMApi } from '@/api/settings.js'
+import { getUserInfo, updateUserInfo } from '@/api/user.js'
 
 export default {
 	setup() {
@@ -88,17 +68,13 @@ export default {
 			allCategories: ['cs.AI', 'cs.CL', 'cs.CV', 'cs.LG', 'stat.ML', 'cs.RO', 'cs.NE', 'cs.SE'],
 			selectedCategories: [],
 			dailyCount: 5,
-			form: {
-				llm_base_url: '',
-				llm_model_name: '',
-				llm_api_key: '',
-				llm_api_key_set: false
-			},
-			testing: false
+			nickname: '',
+			isLoggedIn: false
 		}
 	},
 
 	onLoad() {
+		this.isLoggedIn = userStore.isLoggedIn()
 		this.loadSettings()
 	},
 
@@ -108,9 +84,15 @@ export default {
 			await this.settingsStore.fetchSettings()
 			this.selectedCategories = [...this.settingsStore.categories]
 			this.dailyCount = this.settingsStore.dailyCount
-			this.form.llm_base_url = this.settingsStore.llmBaseUrl
-			this.form.llm_model_name = this.settingsStore.llmModelName
-			this.form.llm_api_key_set = this.settingsStore.llmApiKeySet
+			// 加载昵称
+			try {
+				const res = await getUserInfo()
+				if (res.code === 200 && res.data) {
+					this.nickname = res.data.nickname || ''
+				}
+			} catch (e) {
+				console.error('加载用户信息失败', e)
+			}
 		},
 
 		toggleCategory(e) {
@@ -129,27 +111,20 @@ export default {
 			this.dailyCount = e.currentTarget.dataset.count
 		},
 
-		async testLLM() {
-			if (!userStore.isLoggedIn()) {
-				const success = await userStore.performWxLogin()
-				if (!success) {
-					uni.showToast({ title: '登录失败', icon: 'none' })
-					return
+		logout() {
+			uni.showModal({
+				title: '确认退出',
+				content: '退出登录后需要重新登录才能使用完整功能',
+				confirmText: '退出',
+				confirmColor: '#FF3B30',
+				success: (res) => {
+					if (res.confirm) {
+						userStore.clear()
+						this.isLoggedIn = false
+						uni.reLaunch({ url: '/pages/home/index' })
+					}
 				}
-			}
-
-			this.testing = true
-			try {
-				const res = await testLLMApi()
-				uni.showToast({
-					title: res.code === 200 ? '连接成功' : '连接失败',
-					icon: res.code === 200 ? 'success' : 'none'
-				})
-			} catch (e) {
-				uni.showToast({ title: '测试失败', icon: 'none' })
-			} finally {
-				this.testing = false
-			}
+			})
 		},
 
 		async save() {
@@ -161,24 +136,25 @@ export default {
 				}
 			}
 
-			const payload = {
-				preferred_categories: this.selectedCategories,
-				daily_count: this.dailyCount,
-				llm_base_url: this.form.llm_base_url,
-				llm_model_name: this.form.llm_model_name
+			// 保存昵称
+			const trimmed = this.nickname.trim()
+			if (trimmed) {
+				const userRes = await updateUserInfo({ nickname: trimmed })
+				if (userRes.code !== 200) {
+					uni.showToast({ title: userRes.msg || '昵称保存失败', icon: 'none' })
+					return
+				}
 			}
 
-			if (this.form.llm_api_key) {
-				payload.llm_api_key = this.form.llm_api_key
+			// 保存偏好设置
+			const payload = {
+				preferred_categories: this.selectedCategories,
+				daily_count: this.dailyCount
 			}
 
 			const res = await this.settingsStore.saveSettings(payload)
 			if (res.code === 200) {
 				uni.showToast({ title: '保存成功', icon: 'success' })
-				if (this.form.llm_api_key) {
-					this.form.llm_api_key_set = true
-					this.form.llm_api_key = ''
-				}
 			} else {
 				uni.showToast({ title: res.msg || '保存失败', icon: 'none' })
 			}
@@ -206,6 +182,16 @@ export default {
 .section-title {
 	font-size: $font-size-headline;
 	font-weight: $font-weight-semibold;
+	color: $color-text-primary;
+	margin-bottom: $spacing-3;
+}
+
+.nickname-input {
+	height: 80rpx;
+	background-color: $color-bg-grouped;
+	border-radius: $radius-sm;
+	padding: 0 $spacing-4;
+	font-size: $font-size-body;
 	color: $color-text-primary;
 }
 
@@ -266,31 +252,17 @@ export default {
 	color: #FFFFFF;
 }
 
-.field {
-	margin-bottom: $spacing-4;
+.logout-section {
+	margin: $spacing-6 $spacing-4 $spacing-4;
 }
 
-.label {
-	font-size: $font-size-footnote;
-	color: $color-text-secondary;
-	margin-bottom: $spacing-2;
-}
-
-.input {
-	background-color: $color-bg-grouped;
-	color: $color-text-primary;
-	border-radius: $radius-sm;
-	padding: $spacing-3 $spacing-4;
-	font-size: $font-size-body;
-}
-
-.btn-test {
-	background-color: transparent;
-	color: $color-primary;
-	border: 2rpx solid $color-separator;
+.btn-logout {
+	background-color: $color-bg-card;
+	color: $color-error;
+	font-weight: $font-weight-semibold;
 	border-radius: $radius-sm;
 	font-size: $font-size-body;
-	margin-top: $spacing-2;
+	border: none;
 }
 
 .save-section {

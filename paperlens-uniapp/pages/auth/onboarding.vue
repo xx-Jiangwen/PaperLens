@@ -2,12 +2,24 @@
 	<view class="page">
 		<!-- 标题 -->
 		<view class="header">
-			<view class="title">选择你感兴趣的方向</view>
-			<view class="subtitle">我们将为你推荐相关领域的论文</view>
+			<view class="title">欢迎使用 PaperLens</view>
+			<view class="subtitle">设置你的昵称和感兴趣的方向</view>
+		</view>
+
+		<!-- 昵称输入 -->
+		<view class="nickname-section">
+			<view class="section-label">你的昵称</view>
+			<input
+				class="nickname-input"
+				v-model="nickname"
+				placeholder="输入昵称（1-20个字符）"
+				maxlength="20"
+			/>
 		</view>
 
 		<!-- 分类选择 -->
 		<view class="category-section">
+			<view class="section-label">感兴趣的方向</view>
 			<view class="category-grid">
 				<view
 					v-for="cat in categories"
@@ -40,6 +52,7 @@
 
 <script>
 import { useSettingsStore } from '@/stores/settings.js'
+import { updateUserInfo } from '@/api/user.js'
 
 export default {
 	setup() {
@@ -49,6 +62,7 @@ export default {
 
 	data() {
 		return {
+			nickname: '',
 			selected: [],
 			categories: [
 				{ value: 'cs.AI', label: '人工智能', icon: '🤖' },
@@ -80,6 +94,12 @@ export default {
 			if (this.selected.length === 0) {
 				uni.showToast({ title: '请至少选择一个方向', icon: 'none' })
 				return
+			}
+
+			// 保存昵称
+			const trimmed = this.nickname.trim()
+			if (trimmed) {
+				await updateUserInfo({ nickname: trimmed })
 			}
 
 			// 保存兴趣设置
@@ -128,6 +148,26 @@ export default {
 .category-section {
 	flex: 1;
 	padding: 0 $spacing-4;
+}
+
+.section-label {
+	font-size: $font-size-headline;
+	font-weight: $font-weight-semibold;
+	color: $color-text-primary;
+	margin-bottom: $spacing-3;
+}
+
+.nickname-section {
+	padding: 0 $spacing-4 $spacing-4;
+}
+
+.nickname-input {
+	height: 88rpx;
+	background-color: $color-bg-grouped;
+	border-radius: $radius-sm;
+	padding: 0 $spacing-4;
+	font-size: $font-size-body;
+	color: $color-text-primary;
 }
 
 .category-grid {

@@ -1,6 +1,6 @@
 /**
  * PaperLens 公共样式
- * 基于设计系统变量
+ * 编辑部/杂志风格
  */
 
 @import './variables.scss';
@@ -9,20 +9,190 @@
 
 .page {
   min-height: 100vh;
-  background-color: $color-bg-grouped;
+  background-color: $color-bg;
 }
 
 .page-content {
   padding: $spacing-4;
 }
 
+/* ========== 编辑部排版类 ========== */
+
+/* 衬线标题 */
+.font-headline {
+  font-family: $font-family-headline;
+}
+
+/* 大写标签 */
+.label-uppercase {
+  font-size: $font-size-label-xs;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-widest;
+  text-transform: uppercase;
+}
+
+/* Hero 标题 */
+.hero-title {
+  font-family: $font-family-headline;
+  font-size: $font-size-headline-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: $line-height-tight;
+}
+
+/* 文章标题 */
+.article-title {
+  font-family: $font-family-headline;
+  font-size: $font-size-headline-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: $line-height-normal;
+}
+
+/* 斜体摘要 */
+.abstract-serif {
+  font-family: $font-family-headline;
+  font-style: italic;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+}
+
 /* ========== 卡片样式 ========== */
 
+/* Bento 卡片 - 深蓝底 */
+.bento-card {
+  background-color: $color-primary-container;
+  border-radius: $radius-xl;
+  padding: $spacing-6;
+  color: $color-on-primary;
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 128rpx;
+  height: 128rpx;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transform: translate(64rpx, -64rpx);
+}
+
+/* 浅灰卡片 */
+.surface-card {
+  background-color: $color-surface-container-low;
+  border-radius: $radius-md;
+  padding: $spacing-4;
+}
+
+/* 白卡片 */
 .card {
   background-color: $color-bg-card;
   border-radius: $radius-md;
   padding: $spacing-4;
   margin-bottom: $spacing-4;
+}
+
+/* ========== 分类标签 ========== */
+
+/* 绿底标签 */
+.tag-tertiary {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 $spacing-2;
+  background-color: $color-tertiary-fixed;
+  color: $color-on-tertiary-container;
+  border-radius: 8rpx;
+  font-size: $font-size-label-xs;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-widest;
+  text-transform: uppercase;
+}
+
+/* 灰底标签 */
+.tag-surface {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 $spacing-2;
+  background-color: $color-surface-variant;
+  color: $color-on-surface-variant;
+  border-radius: 8rpx;
+  font-size: $font-size-label-xs;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-widest;
+  text-transform: uppercase;
+}
+
+/* 深蓝激活标签 */
+.tag-primary {
+  display: inline-flex;
+  align-items: center;
+  height: 44rpx;
+  padding: 0 $spacing-4;
+  background-color: $color-primary-container;
+  color: $color-on-primary;
+  border-radius: $radius-full;
+  font-size: $font-size-label-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-widest;
+  text-transform: uppercase;
+}
+
+/* ========== 分割线 ========== */
+
+.separator {
+  height: 1rpx;
+  background-color: $color-separator;
+  opacity: 0.2;
+}
+
+.separator-dark {
+  height: 4rpx;
+  width: 96rpx;
+  background-color: $color-primary-container;
+  border-radius: $radius-full;
+}
+
+.separator-line {
+  border-bottom: 1rpx solid $color-separator;
+  opacity: 0.2;
+}
+
+/* ========== 列表样式 ========== */
+
+/* 编辑部文章列表 */
+.article-list-item {
+  padding-bottom: $spacing-12;
+  border-bottom: 1rpx solid $color-separator;
+  opacity: 0.2;
+}
+
+.article-list-item:last-child {
+  border-bottom: none;
+}
+
+/* 菜单列表 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4;
+  background-color: $color-surface-container-low;
+  border-bottom: 1rpx solid $color-separator;
+  opacity: 0.2;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-arrow {
+  color: $color-text-tertiary;
+  font-size: $font-size-title2;
 }
 
 /* ========== 文字样式 ========== */
@@ -86,12 +256,12 @@
 }
 
 .btn-primary {
-  background-color: $color-primary;
-  color: #FFFFFF;
+  background-color: $color-primary-container;
+  color: $color-on-primary;
 }
 
 .btn-secondary {
-  background-color: $color-bg-grouped;
+  background-color: $color-surface-container-low;
   color: $color-text-primary;
 }
 
@@ -99,13 +269,18 @@
   background-color: transparent;
   color: $color-primary;
   border: 2rpx solid $color-separator;
+  opacity: 0.3;
 }
 
 .btn-text {
   background-color: transparent;
-  color: $color-primary;
+  color: $color-primary-fixed-dim;
   padding: 0;
   height: auto;
+  font-size: $font-size-label-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-widest;
+  text-transform: uppercase;
 }
 
 /* ========== 输入框样式 ========== */
@@ -122,42 +297,6 @@
 
 .input::placeholder {
   color: $color-text-placeholder;
-}
-
-/* ========== 分割线 ========== */
-
-.separator {
-  height: 1rpx;
-  background-color: $color-separator;
-  margin: $spacing-4 0;
-}
-
-/* ========== 标签样式 ========== */
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  height: 48rpx;
-  padding: 0 $spacing-3;
-  background-color: $color-primary-light;
-  color: $color-primary;
-  border-radius: $radius-sm;
-  font-size: $font-size-footnote;
-  font-weight: $font-weight-medium;
-}
-
-/* ========== 列表样式 ========== */
-
-.list-item {
-  display: flex;
-  align-items: center;
-  padding: $spacing-4;
-  background-color: $color-bg-card;
-  border-bottom: 1rpx solid $color-separator;
-}
-
-.list-item:last-child {
-  border-bottom: none;
 }
 
 /* ========== 状态样式 ========== */
@@ -185,7 +324,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: $spacing-6 * 2;
+  padding: $spacing-16;
   color: $color-text-secondary;
 }
 
@@ -245,6 +384,9 @@
 .mt-4 { margin-top: $spacing-4; }
 .mt-5 { margin-top: $spacing-5; }
 .mt-6 { margin-top: $spacing-6; }
+.mt-8 { margin-top: $spacing-8; }
+.mt-12 { margin-top: $spacing-12; }
+.mt-16 { margin-top: $spacing-16; }
 
 .mb-1 { margin-bottom: $spacing-1; }
 .mb-2 { margin-bottom: $spacing-2; }
@@ -252,6 +394,9 @@
 .mb-4 { margin-bottom: $spacing-4; }
 .mb-5 { margin-bottom: $spacing-5; }
 .mb-6 { margin-bottom: $spacing-6; }
+.mb-8 { margin-bottom: $spacing-8; }
+.mb-12 { margin-bottom: $spacing-12; }
+.mb-16 { margin-bottom: $spacing-16; }
 
 .p-1 { padding: $spacing-1; }
 .p-2 { padding: $spacing-2; }
@@ -259,3 +404,24 @@
 .p-4 { padding: $spacing-4; }
 .p-5 { padding: $spacing-5; }
 .p-6 { padding: $spacing-6; }
+.p-8 { padding: $spacing-8; }
+.p-12 { padding: $spacing-12; }
+.p-16 { padding: $spacing-16; }
+
+/* ========== 行数限制 ========== */
+
+.line-clamp-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}

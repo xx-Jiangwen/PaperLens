@@ -15,23 +15,17 @@
 <script>
 /**
  * SegmentedControl - Tab 切换组件
- * @description Apple 风格的分段控制器
+ * @description 编辑部风格的分段控制器（pill 样式）
  */
 
 export default {
 	name: 'SegmentedControl',
 
 	props: {
-		/**
-		 * 选项数组
-		 */
 		options: {
 			type: Array,
 			default: () => []
 		},
-		/**
-		 * 当前选中值
-		 */
 		value: {
 			type: [String, Number],
 			default: ''
@@ -56,27 +50,28 @@ export default {
 .segmented-control {
 	display: flex;
 	flex-direction: row;
-	background-color: $color-bg-grouped;
-	border-radius: $radius-sm;
-	padding: 4rpx;
+	gap: $spacing-2;
 }
 
 .segment {
-	flex: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 64rpx;
-	font-size: $font-size-subheadline;
-	font-weight: $font-weight-medium;
-	color: $color-text-secondary;
+	height: 44rpx;
+	padding: 0 $spacing-4;
+	background-color: $color-surface-variant;
+	color: $color-on-surface-variant;
+	border-radius: $radius-full;
+	font-family: $font-family-label;
+	font-size: $font-size-label-xs;
+	font-weight: $font-weight-bold;
+	letter-spacing: $letter-spacing-widest;
+	text-transform: uppercase;
 	transition: all $duration-fast;
-	border-radius: 12rpx;
 }
 
 .segment.active {
-	background-color: $color-bg-card;
-	color: $color-text-primary;
-	box-shadow: $shadow-sm;
+	background-color: $color-primary-container;
+	color: $color-on-primary;
 }
 </style>

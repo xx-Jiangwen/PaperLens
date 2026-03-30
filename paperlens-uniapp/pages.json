@@ -3,10 +3,9 @@
 		{
 			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "PaperLens",
-				"navigationBarBackgroundColor": "#FFFFFF",
-				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7",
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "",
+				"backgroundColor": "#f7fafc",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -14,36 +13,35 @@
 			"path": "pages/home/search",
 			"style": {
 				"navigationBarTitleText": "搜索",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"backgroundColor": "#f7fafc"
 			}
 		},
 		{
 			"path": "pages/home/detail",
 			"style": {
 				"navigationBarTitleText": "论文详情",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"backgroundColor": "#f7fafc"
 			}
 		},
 		{
 			"path": "pages/profile/index",
 			"style": {
-				"navigationBarTitleText": "我的",
-				"navigationBarBackgroundColor": "#FFFFFF",
-				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "",
+				"backgroundColor": "#f7fafc"
 			}
 		},
 		{
 			"path": "pages/profile/bookmarks",
 			"style": {
 				"navigationBarTitleText": "收藏夹",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7",
+				"backgroundColor": "#f7fafc",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -51,51 +49,35 @@
 			"path": "pages/profile/settings",
 			"style": {
 				"navigationBarTitleText": "设置",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"backgroundColor": "#f7fafc"
 			}
 		},
 		{
 			"path": "pages/auth/login",
 			"style": {
 				"navigationBarTitleText": "登录",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"backgroundColor": "#f7fafc"
 			}
 		},
 		{
 			"path": "pages/auth/onboarding",
 			"style": {
 				"navigationBarTitleText": "选择兴趣",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
-				"backgroundColor": "#F2F2F7"
+				"backgroundColor": "#f7fafc"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "PaperLens",
-		"navigationBarBackgroundColor": "#FFFFFF",
-		"backgroundColor": "#F2F2F7"
-	},
-	"tabBar": {
-		"color": "#86868B",
-		"selectedColor": "#007AFF",
-		"backgroundColor": "#FFFFFF",
-		"borderStyle": "white",
-		"list": [
-			{
-				"pagePath": "pages/home/index",
-				"text": "首页"
-			},
-			{
-				"pagePath": "pages/profile/index",
-				"text": "我的"
-			}
-		]
+		"navigationBarBackgroundColor": "#f7fafc",
+		"backgroundColor": "#f7fafc"
 	},
 	"uniIdRouter": {}
 }

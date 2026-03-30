@@ -1,141 +1,128 @@
 <template>
 	<view class="page">
-		<!-- 搜索栏 -->
-		<view class="search-section">
-			<SearchBar
-				placeholder="搜索论文"
-				:readonly="true"
-				@tap="goToSearch"
-			/>
+		<!-- 自定义顶部导航栏 -->
+		<view class="header">
+			<view class="header-content">
+				<view class="header-left">
+					<text class="header-icon">📖</text>
+					<text class="header-title">The Editorial Scholar</text>
+				</view>
+				<view class="header-right">
+					<text class="search-icon" @tap="goToSearch">🔍</text>
+					<text class="brand-name">PaperLens</text>
+				</view>
+			</view>
+			<view class="header-divider"></view>
 		</view>
 
-		<!-- Tab 切换 -->
-		<view class="tab-section">
-			<SegmentedControl
-				:options="tabOptions"
-				:value="activeTab"
-				@change="onTabChange"
-			/>
+		<!-- Hero 区域 -->
+		<view class="hero-section">
+			<text class="hero-label">CURATED INSIGHTS</text>
+			<view class="hero-title">
+				<text class="hero-title-main">Discovery Through</text>
+				<text class="hero-title-accent">Intellectual Rigor</text>
+			</view>
+			<view class="hero-divider"></view>
 		</view>
 
-		<!-- 精选 Tab 内容 -->
-		<view v-show="activeTab === 'featured'" class="content">
+		<!-- 分类筛选器 -->
+		<scroll-view class="filter-section" scroll-x="true">
+			<view
+				v-for="filter in filterOptions"
+				:key="filter.value"
+				:class="['filter-tag', { active: activeFilter === filter.value }]"
+				:data-value="filter.value"
+				@tap="onFilterChange"
+			>{{ filter.label }}</view>
+		</scroll-view>
+
+		<!-- 论文列表 -->
+		<view class="content">
 			<!-- 加载状态 -->
-			<view v-if="featuredLoading && featuredPapers.length === 0" class="loading">
+			<view v-if="loading && papers.length === 0" class="loading">
 				<text>加载中...</text>
 			</view>
 
 			<!-- 论文列表 -->
 			<view v-else class="paper-list">
 				<PaperCard
-					v-for="paper in featuredPapers"
+					v-for="paper in papers"
 					:key="paper.id"
 					:paper="paper"
-					:show-actions="true"
-					:is-bookmarked="isBookmarked(paper.id)"
-					@tap="goToDetail"
-					@bookmark="onBookmark"
-					@skip="onSkip"
+					@select="goToDetail"
 				/>
 			</view>
 
 			<!-- 空状态 -->
-			<view v-if="!featuredLoading && featuredPapers.length === 0" class="empty">
+			<view v-if="!loading && papers.length === 0" class="empty">
 				<text class="empty-icon">📭</text>
-				<text class="empty-text">暂无精选论文</text>
-			</view>
-		</view>
-
-		<!-- 全部 Tab 内容 -->
-		<view v-show="activeTab === 'all'" class="content">
-			<!-- 数据源筛选 -->
-			<scroll-view class="source-filter" scroll-x="true">
-				<view
-					v-for="source in sources"
-					:key="source.value"
-					:class="['source-tag', { active: selectedSource === source.value }]"
-					:data-value="source.value"
-					@tap="onSourceChange"
-				>{{ source.label }}</view>
-			</scroll-view>
-
-			<!-- 加载状态 -->
-			<view v-if="allLoading && allPapers.length === 0" class="loading">
-				<text>加载中...</text>
-			</view>
-
-			<!-- 论文列表 -->
-			<view v-else class="paper-list">
-				<PaperCard
-					v-for="paper in allPapers"
-					:key="paper.id"
-					:paper="paper"
-					:show-actions="false"
-					:is-bookmarked="isBookmarked(paper.id)"
-					@tap="goToDetail"
-				/>
+				<text class="empty-text">暂无论文</text>
 			</view>
 
 			<!-- 加载更多 -->
-			<view v-if="allPapers.length > 0 && allHasMore" class="load-more">
-				<text v-if="allLoading">加载中...</text>
+			<view v-if="papers.length > 0 && hasMore" class="load-more">
+				<text v-if="loading">加载中...</text>
 				<text v-else>上拉加载更多</text>
 			</view>
 		</view>
+
+		<!-- 自定义底部导航 -->
+		<TabBar current-path="/pages/home/index" />
 	</view>
 </template>
 
 <script>
-import SearchBar from '@/components/SearchBar.vue'
-import SegmentedControl from '@/components/SegmentedControl.vue'
 import PaperCard from '@/components/PaperCard.vue'
+import TabBar from '@/components/TabBar.vue'
 import { usePapersStore } from '@/stores/papers.js'
-import { useBookmarksStore } from '@/stores/bookmarks.js'
 
 export default {
 	components: {
-		SearchBar,
-		SegmentedControl,
-		PaperCard
+		PaperCard,
+		TabBar
 	},
 
 	data() {
 		return {
-			activeTab: 'featured',
-			tabOptions: [
-				{ value: 'featured', label: '精选' },
-				{ value: 'all', label: '全部' }
-			],
-			sources: [
-				{ value: null, label: '全部' },
-				{ value: 'arxiv', label: 'arXiv' }
-			],
-			selectedSource: null
+			activeFilter: 'recent',
+			filterOptions: [
+				{ value: 'recent', label: 'RECENT' },
+				{ value: 'featured', label: 'FEATURED' },
+				{ value: 'cv', label: 'CV' },
+				{ value: 'nlp', label: 'NLP' },
+				{ value: 'ml', label: 'ML' }
+			]
 		}
 	},
 
 	computed: {
-		featuredPapers() {
-			return this.papersStore.featuredPapers
+		papers() {
+			// 根据筛选条件返回不同列表
+			if (this.activeFilter === 'recent' || this.activeFilter === 'featured') {
+				return this.papersStore.featuredPapers
+			}
+			return this.papersStore.allPapers.filter(paper => {
+				if (!paper.categories) return false
+				return paper.categories.some(cat => {
+					const catLower = cat.toLowerCase()
+					if (this.activeFilter === 'cv') return catLower.includes('cv')
+					if (this.activeFilter === 'nlp') return catLower.includes('cl') || catLower.includes('nlp')
+					if (this.activeFilter === 'ml') return catLower.includes('lg') || catLower.includes('ml')
+					return false
+				})
+			})
 		},
-		featuredLoading() {
-			return this.papersStore.featuredLoading
+		loading() {
+			return this.papersStore.featuredLoading || this.papersStore.allLoading
 		},
-		allPapers() {
-			return this.papersStore.allPapers
-		},
-		allLoading() {
-			return this.papersStore.allLoading
-		},
-		allHasMore() {
+		hasMore() {
 			return this.papersStore.allHasMore
 		}
 	},
 
 	setup() {
 		const papersStore = usePapersStore()
-		const bookmarksStore = useBookmarksStore()
-		return { papersStore, bookmarksStore }
+		return { papersStore }
 	},
 
 	onLoad() {
@@ -149,7 +136,7 @@ export default {
 	},
 
 	onReachBottom() {
-		if (this.activeTab === 'all' && this.allHasMore && !this.allLoading) {
+		if (this.activeFilter !== 'recent' && this.hasMore && !this.loading) {
 			this.papersStore.fetchAllPapers()
 		}
 	},
@@ -160,28 +147,17 @@ export default {
 		 */
 		async loadData() {
 			await this.papersStore.fetchFeaturedPapers()
-			if (this.activeTab === 'all') {
-				await this.papersStore.fetchAllPapers(true)
-			}
 		},
 
 		/**
-		 * Tab 切换
+		 * 筛选器切换
 		 */
-		onTabChange(value) {
-			this.activeTab = value
-			if (value === 'all' && this.allPapers.length === 0) {
+		onFilterChange(e) {
+			const value = e.currentTarget.dataset.value
+			this.activeFilter = value
+			if (value !== 'recent' && value !== 'featured' && this.papersStore.allPapers.length === 0) {
 				this.papersStore.fetchAllPapers(true)
 			}
-		},
-
-		/**
-		 * 数据源切换
-		 */
-		onSourceChange(e) {
-			const value = e.currentTarget.dataset.value
-			this.selectedSource = value
-			this.papersStore.setSelectedSource(value)
 		},
 
 		/**
@@ -200,40 +176,6 @@ export default {
 			uni.navigateTo({
 				url: `/pages/home/detail?id=${encodeURIComponent(paper.id)}`
 			})
-		},
-
-		/**
-		 * 是否已收藏
-		 */
-		isBookmarked(paperId) {
-			return this.bookmarksStore.isBookmarked(paperId)
-		},
-
-		/**
-		 * 收藏操作
-		 */
-		async onBookmark(paper) {
-			const res = await this.bookmarksStore.toggleBookmark(paper.id)
-			if (res.code === 200) {
-				uni.showToast({
-					title: this.isBookmarked(paper.id) ? '已取消收藏' : '已收藏',
-					icon: 'success'
-				})
-			} else {
-				uni.showToast({ title: res.msg || '操作失败', icon: 'none' })
-			}
-		},
-
-		/**
-		 * 跳过操作
-		 */
-		onSkip(paper) {
-			// 从列表中移除
-			const index = this.papersStore.featuredPapers.findIndex(p => p.id === paper.id)
-			if (index > -1) {
-				this.papersStore.featuredPapers.splice(index, 1)
-			}
-			uni.showToast({ title: '已跳过', icon: 'none' })
 		}
 	}
 }
@@ -244,55 +186,164 @@ export default {
 
 .page {
 	min-height: 100vh;
-	background-color: $color-bg-grouped;
+	background-color: $color-bg;
+	padding-bottom: 160rpx; // 为底部导航留空间
 }
 
-.search-section {
-	padding: $spacing-4;
+/* ========== 自定义顶部导航栏 ========== */
+
+.header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
 	background-color: $color-bg;
 }
 
-.tab-section {
-	padding: 0 $spacing-4 $spacing-4;
-	background-color: $color-bg;
-}
-
-.content {
-	padding: $spacing-4;
-}
-
-.source-filter {
-	white-space: nowrap;
-	margin-bottom: $spacing-4;
-}
-
-.source-tag {
-	display: inline-flex;
+.header-content {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 	align-items: center;
-	height: 56rpx;
-	padding: 0 $spacing-4;
-	background-color: $color-bg-card;
-	color: $color-text-secondary;
-	border-radius: $radius-full;
-	font-size: $font-size-subheadline;
-	margin-right: $spacing-2;
+	padding: $spacing-4 $spacing-6;
 }
 
-.source-tag.active {
-	background-color: $color-primary-light;
+.header-left {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: $spacing-2;
+}
+
+.header-icon {
+	font-size: 40rpx;
 	color: $color-primary;
 }
 
+.header-title {
+	font-family: $font-family-headline;
+	font-size: $font-size-headline-lg;
+	font-weight: $font-weight-bold;
+	color: $color-primary;
+}
+
+.header-right {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: $spacing-4;
+}
+
+.search-icon {
+	font-size: 36rpx;
+	color: $color-text-secondary;
+}
+
+.brand-name {
+	font-family: $font-family-headline;
+	font-size: $font-size-footnote;
+	font-weight: $font-weight-bold;
+	font-style: italic;
+	color: $color-primary;
+}
+
+.header-divider {
+	height: 1rpx;
+	background-color: $color-surface-container-low;
+}
+
+/* ========== Hero 区域 ========== */
+
+.hero-section {
+	padding: $spacing-8 $spacing-6 $spacing-6;
+}
+
+.hero-label {
+	font-family: $font-family-label;
+	font-size: $font-size-label-xs;
+	font-weight: $font-weight-extrabold;
+	letter-spacing: $letter-spacing-widest;
+	text-transform: uppercase;
+	color: $color-text-secondary;
+	margin-bottom: $spacing-4;
+}
+
+.hero-title {
+	display: flex;
+	flex-direction: column;
+}
+
+.hero-title-main {
+	font-family: $font-family-headline;
+	font-size: $font-size-headline-xl;
+	font-weight: $font-weight-bold;
+	color: $color-primary;
+	line-height: $line-height-tight;
+}
+
+.hero-title-accent {
+	font-family: $font-family-headline;
+	font-size: $font-size-headline-xl;
+	font-weight: $font-weight-bold;
+	font-style: italic;
+	color: $color-primary;
+	line-height: $line-height-tight;
+}
+
+.hero-divider {
+	width: 96rpx;
+	height: 4rpx;
+	background-color: $color-primary-container;
+	border-radius: $radius-full;
+	margin-top: $spacing-6;
+}
+
+/* ========== 分类筛选器 ========== */
+
+.filter-section {
+	white-space: nowrap;
+	padding: 0 $spacing-6 $spacing-4;
+}
+
+.filter-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 44rpx;
+	padding: 0 $spacing-4;
+	background-color: $color-surface-variant;
+	color: $color-on-surface-variant;
+	border-radius: $radius-full;
+	font-family: $font-family-label;
+	font-size: $font-size-label-xs;
+	font-weight: $font-weight-bold;
+	letter-spacing: $letter-spacing-widest;
+	text-transform: uppercase;
+	margin-right: $spacing-2;
+	transition: all $duration-fast;
+}
+
+.filter-tag.active {
+	background-color: $color-primary-container;
+	color: $color-on-primary;
+}
+
+/* ========== 内容区域 ========== */
+
+.content {
+	padding: $spacing-6;
+}
+
 .paper-list {
-	// 论文卡片自带 margin-bottom
+	// 论文卡片自带 padding-bottom
 }
 
 .loading {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: $spacing-6;
+	padding: $spacing-8;
 	color: $color-text-secondary;
+	font-family: $font-family-body;
 	font-size: $font-size-body;
 }
 
@@ -302,6 +353,7 @@ export default {
 	justify-content: center;
 	padding: $spacing-4;
 	color: $color-text-tertiary;
+	font-family: $font-family-body;
 	font-size: $font-size-footnote;
 }
 
@@ -310,7 +362,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: $spacing-6 * 2;
+	padding: $spacing-16;
 }
 
 .empty-icon {
@@ -320,6 +372,7 @@ export default {
 }
 
 .empty-text {
+	font-family: $font-family-body;
 	font-size: $font-size-body;
 	color: $color-text-secondary;
 }

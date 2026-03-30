@@ -5,8 +5,8 @@
 			<view
 				v-for="(cat, index) in displayCategories"
 				:key="index"
-				class="tag"
-			>{{ cat }}</view>
+				:class="['tag', cat.isHighlight ? 'tag-tertiary' : 'tag-surface']"
+			>{{ cat.text }}</view>
 		</view>
 
 		<!-- 标题 -->
@@ -19,21 +19,8 @@
 		<view class="abstract">{{ paper.abstract }}</view>
 
 		<!-- AI 摘要状态 -->
-		<view :class="['summary-status', paper.summary_status]">
-			<text class="status-dot"></text>
-			{{ statusText }}
-		</view>
-
-		<!-- 操作按钮 -->
-		<view v-if="showActions" class="actions">
-			<view class="action-btn bookmark" @tap.stop="onBookmark">
-				<text class="icon">{{ isBookmarked ? '★' : '☆' }}</text>
-				<text class="label">{{ isBookmarked ? '已收藏' : '收藏' }}</text>
-			</view>
-			<view class="action-btn skip" @tap.stop="onSkip">
-				<text class="icon">✕</text>
-				<text class="label">跳过</text>
-			</view>
+		<view v-if="paper.summary_status" class="summary-status">
+			<text class="status-text">{{ statusText }}</text>
 		</view>
 	</view>
 </template>
@@ -41,7 +28,7 @@
 <script>
 /**
  * PaperCard - 论文卡片组件
- * @description 展示论文信息的卡片，支持收藏和跳过操作
+ * @description 编辑部风格的文章列表式展示
  */
 
 export default {
@@ -56,14 +43,14 @@ export default {
 			default: () => ({})
 		},
 		/**
-		 * 是否显示操作按钮
+		 * 是否显示操作按钮（已废弃，保留兼容）
 		 */
 		showActions: {
 			type: Boolean,
 			default: false
 		},
 		/**
-		 * 是否已收藏
+		 * 是否已收藏（已废弃，保留兼容）
 		 */
 		isBookmarked: {
 			type: Boolean,
@@ -73,11 +60,15 @@ export default {
 
 	computed: {
 		/**
-		 * 显示的分类（最多2个）
+		 * 显示的分类（最多2个，带高亮标记）
 		 */
 		displayCategories() {
 			if (!this.paper.categories) return []
-			return this.paper.categories.slice(0, 2)
+			const cats = this.paper.categories.slice(0, 2)
+			return cats.map((text, index) => ({
+				text,
+				isHighlight: index === 0 // 第一个标签用绿色高亮
+			}))
 		},
 
 		/**
@@ -91,13 +82,13 @@ export default {
 		},
 
 		/**
-		 * 状态文本
+		 * 状态文本（轻量版）
 		 */
 		statusText() {
 			const statusMap = {
-				'done': 'AI摘要已生成',
-				'processing': 'AI摘要生成中',
-				'pending': '待生成摘要',
+				'done': 'AI摘要',
+				'processing': '生成中',
+				'pending': '待生成',
 				'failed': '生成失败'
 			}
 			return statusMap[this.paper.summary_status] || ''
@@ -106,15 +97,7 @@ export default {
 
 	methods: {
 		onTap() {
-			this.$emit('tap', this.paper)
-		},
-
-		onBookmark() {
-			this.$emit('bookmark', this.paper)
-		},
-
-		onSkip() {
-			this.$emit('skip', this.paper)
+			this.$emit('select', this.paper)
 		}
 	}
 }
@@ -124,136 +107,84 @@ export default {
 @import '@/styles/variables.scss';
 
 .paper-card {
-	background-color: $color-bg-card;
-	border-radius: $radius-md;
-	padding: $spacing-4;
-	margin-bottom: $spacing-4;
+	padding-bottom: $spacing-12;
+	border-bottom: 1rpx solid $color-separator;
+	opacity: 0.2;
+}
+
+.paper-card:last-child {
+	border-bottom: none;
 }
 
 .tags {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	margin-bottom: $spacing-2;
+	gap: $spacing-2;
+	margin-bottom: $spacing-3;
 }
 
 .tag {
 	display: inline-flex;
 	align-items: center;
-	height: 40rpx;
+	height: 36rpx;
 	padding: 0 $spacing-2;
-	background-color: $color-primary-light;
-	color: $color-primary;
 	border-radius: 8rpx;
-	font-size: $font-size-caption;
-	font-weight: $font-weight-medium;
-	margin-right: $spacing-1;
+	font-size: $font-size-label-xs;
+	font-weight: $font-weight-extrabold;
+	letter-spacing: $letter-spacing-widest;
+	text-transform: uppercase;
+}
+
+.tag-tertiary {
+	background-color: $color-tertiary-fixed;
+	color: $color-on-tertiary-container;
+}
+
+.tag-surface {
+	background-color: $color-surface-variant;
+	color: $color-on-surface-variant;
 }
 
 .title {
-	font-size: $font-size-headline;
-	font-weight: $font-weight-semibold;
-	color: $color-text-primary;
+	font-family: $font-family-headline;
+	font-size: $font-size-headline-lg;
+	font-weight: $font-weight-bold;
+	color: $color-primary;
 	line-height: $line-height-normal;
 	margin-bottom: $spacing-2;
 }
 
 .authors {
+	font-family: $font-family-body;
 	font-size: $font-size-footnote;
+	font-weight: $font-weight-semibold;
 	color: $color-text-secondary;
-	margin-bottom: $spacing-2;
+	margin-bottom: $spacing-3;
 }
 
 .abstract {
+	font-family: $font-family-headline;
+	font-style: italic;
 	font-size: $font-size-subheadline;
 	color: $color-text-secondary;
 	line-height: $line-height-relaxed;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
-	margin-bottom: $spacing-3;
 }
 
 .summary-status {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	font-size: $font-size-caption;
-	color: $color-text-tertiary;
+	margin-top: $spacing-2;
 }
 
-.status-dot {
-	width: 12rpx;
-	height: 12rpx;
-	border-radius: 50%;
-	background-color: $color-text-tertiary;
-	margin-right: $spacing-1;
-}
-
-.summary-status.done .status-dot {
-	background-color: $color-success;
-}
-
-.summary-status.done {
-	color: $color-success;
-}
-
-.summary-status.processing .status-dot {
-	background-color: $color-warning;
-}
-
-.summary-status.processing {
-	color: $color-warning;
-}
-
-.summary-status.failed .status-dot {
-	background-color: $color-error;
-}
-
-.summary-status.failed {
-	color: $color-error;
-}
-
-.actions {
-	display: flex;
-	flex-direction: row;
-	margin-top: $spacing-4;
-	padding-top: $spacing-3;
-	border-top: 1rpx solid $color-separator;
-}
-
-.action-btn {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	flex: 1;
-	height: 64rpx;
-	border-radius: $radius-sm;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-medium;
-	transition: opacity $duration-fast;
-}
-
-.action-btn:active {
-	opacity: 0.7;
-}
-
-.action-btn .icon {
-	margin-right: $spacing-1;
-	font-size: $font-size-body;
-}
-
-.action-btn.bookmark {
-	background-color: $color-primary-light;
-	color: $color-primary;
-}
-
-.action-btn.skip {
-	background-color: $color-bg-grouped;
-	color: $color-text-secondary;
-	margin-left: $spacing-2;
+.status-text {
+	font-family: $font-family-label;
+	font-size: $font-size-label-xs;
+	font-weight: $font-weight-bold;
+	color: $color-tertiary-fixed-dim;
+	letter-spacing: $letter-spacing-wide;
 }
 </style>

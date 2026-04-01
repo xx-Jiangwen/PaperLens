@@ -1,100 +1,100 @@
 <template>
 	<view class="page">
-		<!-- 自定义顶部导航栏 -->
+		<!-- 顶部导航栏 -->
 		<view class="header">
-			<view class="header-content">
-				<view class="header-left">
-					<text class="header-icon">📖</text>
-					<text class="header-title">The Editorial Scholar</text>
+			<view class="header-inner">
+				<view class="icon-btn">
+					<text class="material-icon menu-icon">menu</text>
 				</view>
-				<view class="header-right">
-					<text class="brand-name">PaperLens</text>
-				</view>
-			</view>
-			<view class="header-divider"></view>
-		</view>
-
-		<!-- Hero 区域 -->
-		<view class="hero-section">
-			<text class="hero-label">READER PROFILE</text>
-			<view class="hero-title">
-				<text class="hero-title-main" v-if="isLoggedIn">{{ userInfo.nickname || 'PaperLens Reader' }}</text>
-				<text class="hero-title-main" v-else>Welcome</text>
-			</view>
-			<text class="hero-subtitle" v-if="isLoggedIn">探索学术前沿，发现精选论文</text>
-			<text class="hero-subtitle" v-else @tap="handleLogin">点击登录，开启个性化推荐</text>
-			<view class="hero-divider"></view>
-		</view>
-
-		<!-- 统计 Bento 卡片 -->
-		<view class="stats-section" v-if="isLoggedIn">
-			<view class="bento-card">
-				<view class="bento-accent"></view>
-				<view class="bento-header">
-					<text class="bento-icon">◆</text>
-					<text class="bento-label">WEEKLY STATS</text>
-				</view>
-				<view class="bento-list">
-					<view class="bento-item">
-						<text class="bento-num">01</text>
-						<text class="bento-text">本周阅读</text>
-						<text class="bento-value">{{ stats.weekRead || 0 }}</text>
-					</view>
-					<view class="bento-item">
-						<text class="bento-num">02</text>
-						<text class="bento-text">收藏</text>
-						<text class="bento-value">{{ stats.weekBookmarked || 0 }}</text>
-					</view>
-					<view class="bento-item">
-						<text class="bento-num">03</text>
-						<text class="bento-text">跳过</text>
-						<text class="bento-value">{{ stats.weekSkipped || 0 }}</text>
-					</view>
+				<text class="brand-title">PaperLens</text>
+				<view class="icon-btn" @tap="goToSearch">
+					<text class="material-icon search-icon">search</text>
 				</view>
 			</view>
 		</view>
 
-		<!-- 菜单区域 -->
-		<view class="menu-section">
+		<!-- 主内容区 -->
+		<view class="main-content">
+			<!-- 头像区域 -->
+			<view class="profile-section">
+				<view class="avatar-wrapper">
+					<image
+						v-if="isLoggedIn && userInfo.avatar"
+						class="avatar"
+						:src="userInfo.avatar"
+						mode="aspectFill"
+					/>
+					<view v-else class="avatar-placeholder">
+						<text class="avatar-icon">person</text>
+					</view>
+				</view>
+				<text class="username">{{ displayName }}</text>
+			</view>
+
+			<!-- 菜单卡片 -->
 			<view class="menu-card">
 				<view class="menu-item" @tap="goToBookmarks">
-					<text class="menu-label">我的收藏</text>
-					<text class="menu-arrow">→</text>
+					<view class="menu-left">
+						<text class="menu-icon">bookmark</text>
+						<text class="menu-label">我的收藏</text>
+					</view>
+					<text class="menu-arrow">chevron_right</text>
 				</view>
 				<view class="menu-divider"></view>
 				<view class="menu-item" @tap="goToSettings">
-					<text class="menu-label">偏好设置</text>
-					<text class="menu-arrow">→</text>
+					<view class="menu-left">
+						<text class="menu-icon">settings</text>
+						<text class="menu-label">偏好设置</text>
+					</view>
+					<text class="menu-arrow">chevron_right</text>
+				</view>
+			</view>
+
+			<!-- 退出登录 -->
+			<view v-if="isLoggedIn" class="logout-section">
+				<view class="logout-btn" @tap="logout">
+					<text class="logout-text">退出登录</text>
+				</view>
+			</view>
+
+			<!-- 未登录 -->
+			<view v-else class="login-section">
+				<view class="login-btn" @tap="handleLogin">
+					<text class="login-text">登录 / 注册</text>
 				</view>
 			</view>
 		</view>
 
-		<!-- 底部信息 -->
-		<view class="footer">
-			<text class="footer-text">PaperLens v2.0</text>
-			<text class="footer-sub">让论文阅读更高效</text>
+		<!-- 底部导航 -->
+		<view class="bottom-nav">
+			<view class="nav-item" @tap="switchTab('/pages/home/index')">
+				<text class="nav-icon">home</text>
+				<text class="nav-label">首页</text>
+			</view>
+			<view class="nav-item active">
+				<text class="nav-icon filled">person</text>
+				<text class="nav-label">个人</text>
+			</view>
 		</view>
-
-		<!-- 自定义底部导航 -->
-		<TabBar current-path="/pages/profile/index" />
 	</view>
 </template>
 
 <script>
-import TabBar from '@/components/TabBar.vue'
 import userStore from '@/stores/user.js'
-import { getUserInfo, getUserStats } from '@/api/user.js'
+import { getUserInfo } from '@/api/user.js'
 
 export default {
-	components: {
-		TabBar
-	},
-
 	data() {
 		return {
 			isLoggedIn: false,
-			userInfo: {},
-			stats: {}
+			userInfo: {}
+		}
+	},
+
+	computed: {
+		displayName() {
+			if (!this.isLoggedIn) return '未登录'
+			return this.userInfo.nickname || 'PaperLens Reader'
 		}
 	},
 
@@ -112,10 +112,8 @@ export default {
 			this.isLoggedIn = userStore.isLoggedIn()
 			if (this.isLoggedIn) {
 				this.loadUserInfo()
-				this.loadStats()
 			} else {
 				this.userInfo = {}
-				this.stats = {}
 			}
 		},
 
@@ -127,17 +125,6 @@ export default {
 				}
 			} catch (e) {
 				console.error('加载用户信息失败', e)
-			}
-		},
-
-		async loadStats() {
-			try {
-				const res = await getUserStats()
-				if (res.code === 200 && res.data) {
-					this.stats = res.data
-				}
-			} catch (e) {
-				console.error('加载统计失败', e)
 			}
 		},
 
@@ -158,20 +145,41 @@ export default {
 			}
 		},
 
+		goToSearch() {
+			uni.navigateTo({ url: '/pages/home/search' })
+		},
+
 		goToBookmarks() {
 			if (!this.isLoggedIn) {
 				this.handleLogin()
 				return
 			}
-			uni.navigateTo({
-				url: '/pages/profile/bookmarks'
-			})
+			uni.navigateTo({ url: '/pages/profile/bookmarks' })
 		},
 
 		goToSettings() {
-			uni.navigateTo({
-				url: '/pages/profile/settings'
+			uni.navigateTo({ url: '/pages/profile/settings' })
+		},
+
+		logout() {
+			uni.showModal({
+				title: '确认退出',
+				content: '退出登录后需要重新登录才能使用完整功能',
+				confirmText: '退出',
+				confirmColor: '#ba1a1a',
+				success: (res) => {
+					if (res.confirm) {
+						userStore.clear()
+						this.isLoggedIn = false
+						this.userInfo = {}
+						uni.reLaunch({ url: '/pages/home/index' })
+					}
+				}
 			})
+		},
+
+		switchTab(url) {
+			uni.switchTab({ url })
 		}
 	}
 }
@@ -183,199 +191,116 @@ export default {
 .page {
 	min-height: 100vh;
 	background-color: $color-bg;
-	padding-bottom: 160rpx;
+	padding-bottom: 140rpx;
 }
 
-/* ========== 自定义顶部导航栏 ========== */
+/* ========== 顶部导航栏 ========== */
 
 .header {
-	position: sticky;
+	position: fixed;
 	top: 0;
+	left: 0;
+	right: 0;
 	z-index: 100;
-	background-color: $color-bg;
+	background-color: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px);
 }
 
-.header-content {
+.header-inner {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	padding: $spacing-4 $spacing-6;
-}
-
-.header-left {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: $spacing-2;
-}
-
-.header-icon {
-	font-size: 40rpx;
-	color: $color-primary;
-}
-
-.header-title {
-	font-family: $font-family-headline;
-	font-size: $font-size-headline-lg;
-	font-weight: $font-weight-bold;
-	color: $color-primary;
-}
-
-.header-right {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-.brand-name {
-	font-family: $font-family-headline;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-bold;
-	font-style: italic;
-	color: $color-primary;
-}
-
-.header-divider {
-	height: 1rpx;
-	background-color: $color-surface-container-low;
-}
-
-/* ========== Hero 区域 ========== */
-
-.hero-section {
-	padding: $spacing-8 $spacing-6 $spacing-6;
-}
-
-.hero-label {
-	font-family: $font-family-label;
-	font-size: $font-size-label-xs;
-	font-weight: $font-weight-extrabold;
-	letter-spacing: $letter-spacing-widest;
-	text-transform: uppercase;
-	color: $color-text-secondary;
-	margin-bottom: $spacing-4;
-}
-
-.hero-title {
-	display: flex;
-	flex-direction: column;
-	margin-bottom: $spacing-2;
-}
-
-.hero-title-main {
-	font-family: $font-family-headline;
-	font-size: $font-size-headline-xl;
-	font-weight: $font-weight-bold;
-	color: $color-primary;
-	line-height: $line-height-tight;
-}
-
-.hero-subtitle {
-	font-family: $font-family-body;
-	font-size: $font-size-subheadline;
-	color: $color-text-secondary;
-}
-
-.hero-divider {
-	width: 96rpx;
-	height: 4rpx;
-	background-color: $color-primary-container;
-	border-radius: $radius-full;
-	margin-top: $spacing-6;
-}
-
-/* ========== 统计 Bento 卡片 ========== */
-
-.stats-section {
-	padding: $spacing-6;
-}
-
-.bento-card {
-	background-color: $color-primary-container;
-	border-radius: $radius-xl;
-	padding: $spacing-6;
-	position: relative;
-	overflow: hidden;
-}
-
-.bento-accent {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 128rpx;
 	height: 128rpx;
-	background-color: rgba(255, 255, 255, 0.05);
-	border-radius: 50%;
-	transform: translate(64rpx, -64rpx);
+	padding: 0 48rpx;
+	max-width: 768rpx;
+	margin: 0 auto;
 }
 
-.bento-header {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: $spacing-2;
-	margin-bottom: $spacing-4;
+.icon-btn {
+	padding: 16rpx;
 }
 
-.bento-icon {
-	color: $color-tertiary-fixed;
-	font-size: 28rpx;
+.material-icon {
+	font-family: 'Material Symbols Outlined';
+	font-size: 44rpx;
 }
 
-.bento-label {
-	font-family: $font-family-label;
-	font-size: $font-size-label-xs;
-	font-weight: $font-weight-extrabold;
-	letter-spacing: $letter-spacing-widest;
-	text-transform: uppercase;
-	color: $color-on-primary;
+.menu-icon,
+.search-icon {
+	color: #3b82f6;
 }
 
-.bento-list {
+.brand-title {
+	font-family: 'Manrope', sans-serif;
+	font-size: 40rpx;
+	font-weight: 700;
+	color: #18181b;
+}
+
+/* ========== 主内容区 ========== */
+
+.main-content {
+	padding: 192rpx 48rpx 0;
+	max-width: 768rpx;
+	margin: 0 auto;
+}
+
+/* ========== 头像区域 ========== */
+
+.profile-section {
 	display: flex;
 	flex-direction: column;
-	gap: $spacing-3;
-}
-
-.bento-item {
-	display: flex;
-	flex-direction: row;
 	align-items: center;
+	margin-bottom: 96rpx;
 }
 
-.bento-num {
-	font-family: $font-family-body;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-bold;
-	color: $color-tertiary-fixed;
-	margin-right: $spacing-3;
+.avatar-wrapper {
+	width: 256rpx;
+	height: 256rpx;
+	border-radius: 50%;
+	overflow: hidden;
+	margin-bottom: 48rpx;
+	background-color: $color-surface-container-high;
+	box-shadow: 0 0 0 32rpx $color-surface-container-lowest,
+	            0 8rpx 32rpx rgba(0, 0, 0, 0.08);
 }
 
-.bento-text {
-	font-family: $font-family-body;
-	font-size: $font-size-subheadline;
-	color: $color-on-primary;
-	opacity: 0.9;
+.avatar {
+	width: 100%;
+	height: 100%;
 }
 
-.bento-value {
-	font-family: $font-family-body;
-	font-size: $font-size-headline-lg;
-	font-weight: $font-weight-bold;
-	color: $color-on-primary;
-	margin-left: auto;
+.avatar-placeholder {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: $color-surface-container-high;
 }
 
-/* ========== 菜单区域 ========== */
-
-.menu-section {
-	padding: $spacing-6;
+.avatar-icon {
+	font-family: 'Material Symbols Outlined';
+	font-size: 128rpx;
+	color: $color-outline-variant;
 }
+
+.username {
+	font-family: 'Manrope', sans-serif;
+	font-size: 48rpx;
+	font-weight: 700;
+	color: $color-on-surface;
+	letter-spacing: -0.02em;
+}
+
+/* ========== 菜单卡片 ========== */
 
 .menu-card {
-	background-color: $color-surface-container-low;
-	border-radius: $radius-md;
+	background-color: $color-surface-container-lowest;
+	border-radius: 24rpx;
+	overflow: hidden;
 }
 
 .menu-item {
@@ -383,49 +308,155 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	padding: $spacing-4 $spacing-4;
+	padding: 40rpx 48rpx;
+}
+
+.menu-item:active {
+	background-color: $color-surface-container-low;
+	transform: scale(0.99);
+}
+
+.menu-left {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 32rpx;
+}
+
+.menu-icon {
+	font-family: 'Material Symbols Outlined';
+	font-size: 44rpx;
+	color: $color-on-surface-variant;
 }
 
 .menu-label {
-	font-family: $font-family-body;
-	font-size: $font-size-body;
-	font-weight: $font-weight-medium;
-	color: $color-text-primary;
+	font-family: 'Inter', sans-serif;
+	font-size: 34rpx;
+	font-weight: 500;
+	color: $color-on-surface;
 }
 
 .menu-arrow {
-	font-size: 32rpx;
-	color: $color-text-tertiary;
+	font-family: 'Material Symbols Outlined';
+	font-size: 40rpx;
+	color: $color-outline-variant;
 }
 
 .menu-divider {
-	height: 1rpx;
-	background-color: $color-separator;
-	opacity: 0.2;
-	margin: 0 $spacing-4;
+	height: 2rpx;
+	margin: 0 48rpx;
+	background-color: $color-surface-container;
 }
 
-/* ========== 底部信息 ========== */
+/* ========== 退出登录 ========== */
 
-.footer {
+.logout-section {
+	margin-top: 64rpx;
+}
+
+.logout-btn {
+	background-color: $color-surface-container-lowest;
+	border-radius: 24rpx;
+	padding: 32rpx;
+	text-align: center;
+}
+
+.logout-btn:active {
+	transform: scale(0.95);
+	background-color: rgba($color-error, 0.05);
+}
+
+.logout-text {
+	font-family: 'Inter', sans-serif;
+	font-size: 34rpx;
+	font-weight: 600;
+	color: $color-error;
+}
+
+/* ========== 登录按钮 ========== */
+
+.login-section {
+	margin-top: 64rpx;
+}
+
+.login-btn {
+	background-color: $color-primary-container;
+	border-radius: 24rpx;
+	padding: 32rpx;
+	text-align: center;
+}
+
+.login-btn:active {
+	transform: scale(0.95);
+}
+
+.login-text {
+	font-family: 'Inter', sans-serif;
+	font-size: 34rpx;
+	font-weight: 600;
+	color: $color-on-primary;
+}
+
+/* ========== 底部导航 ========== */
+
+.bottom-nav {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 32rpx;
+	padding: 32rpx 64rpx 64rpx;
+	background-color: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px);
+	border-top-left-radius: 48rpx;
+	border-top-right-radius: 48rpx;
+	box-shadow: 0 -8rpx 80rpx rgba(26, 28, 29, 0.04);
+}
+
+.nav-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: $spacing-8;
+	padding: 12rpx 48rpx;
+	border-radius: 32rpx;
 }
 
-.footer-text {
-	font-family: $font-family-headline;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-bold;
-	font-style: italic;
-	color: $color-primary;
+.nav-item:active {
+	transform: scale(0.9);
 }
 
-.footer-sub {
-	font-family: $font-family-body;
-	font-size: $font-size-caption;
-	color: $color-text-tertiary;
-	margin-top: $spacing-1;
+.nav-item.active {
+	background-color: rgba(59, 130, 246, 0.1);
+}
+
+.nav-icon {
+	font-family: 'Material Symbols Outlined';
+	font-size: 40rpx;
+	color: #71717a;
+}
+
+.nav-icon.filled {
+	font-variation-settings: 'FILL' 1;
+}
+
+.nav-item.active .nav-icon {
+	color: #3b82f6;
+}
+
+.nav-label {
+	font-family: 'Inter', sans-serif;
+	font-size: 22rpx;
+	font-weight: 500;
+	color: #71717a;
+	margin-top: 8rpx;
+}
+
+.nav-item.active .nav-label {
+	color: #3b82f6;
 }
 </style>

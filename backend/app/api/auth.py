@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from jose import jwt
 from sqlalchemy import select
 from app.config import settings
-from app.dependencies import DbSession
+from app.dependencies import DbSession, RequiredUserId
 from app.models.user import User
 
 router = APIRouter()
@@ -62,3 +62,10 @@ async def wx_login(body: dict, db: DbSession):
 def _create_token(user_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return jwt.encode({"sub": str(user_id), "exp": expire}, settings.SECRET_KEY, algorithm="HS256")
+
+
+@router.post("/refresh")
+async def refresh_token(user_id: RequiredUserId):
+    """刷新 Token。已登录用户可续期，无需重新微信登录。"""
+    token = _create_token(user_id)
+    return {"code": 200, "msg": "success", "data": {"token": token, "user_id": user_id}}

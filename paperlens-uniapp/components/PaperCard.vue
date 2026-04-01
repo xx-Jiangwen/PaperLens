@@ -4,7 +4,13 @@
 		<view class="card-top">
 			<view class="source-badge">{{ displaySource }}</view>
 			<view class="bookmark-btn" @tap.stop="onBookmark">
-				<text class="bookmark-icon" :class="{ bookmarked: isBookmarked }">bookmark</text>
+				<MdIcon
+					name="bookmark"
+					size="48"
+					:color="isBookmarked ? '#0066cc' : '#0066cc'"
+					:filled="isBookmarked"
+					:class="{ 'icon-dim': !isBookmarked }"
+				/>
 			</view>
 		</view>
 
@@ -20,8 +26,13 @@
 </template>
 
 <script>
+import MdIcon from '@/components/MdIcon.vue'
+
 export default {
 	name: 'PaperCard',
+	components: {
+		MdIcon
+	},
 
 	props: {
 		paper: {
@@ -66,20 +77,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
-
 .paper-card {
-	background-color: $color-surface-container-lowest;
-	border-radius: 24rpx;
-	padding: 48rpx;
-	margin-bottom: 48rpx;
-	box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.04);
+	background-color: #ffffff;
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 	transition: all 0.3s ease;
+	width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .paper-card:active {
-	box-shadow: 0 16rpx 80rpx rgba(0, 0, 0, 0.08);
-	transform: scale(0.99);
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+	transform: scale(0.98);
 }
 
 /* ========== 顶部区域 ========== */
@@ -89,79 +101,80 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: flex-start;
-	margin-bottom: 24rpx;
+	margin-bottom: 12px;
+	width: 100%;
 }
 
 .source-badge {
-	background-color: $color-surface-container-high;
-	color: $color-on-surface-variant;
-	font-family: 'Inter', sans-serif;
-	font-size: 20rpx;
+	background-color: #e8e8ea;
+	color: #414753;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 10px;
 	font-weight: 700;
 	letter-spacing: 0.1em;
-	padding: 8rpx 20rpx;
-	border-radius: 999rpx;
+	padding: 4px 10px;
+	border-radius: 999px;
+	flex-shrink: 0;
 }
 
 .bookmark-btn {
-	padding: 12rpx;
-	margin-top: -12rpx;
-	margin-right: -12rpx;
+	padding: 6px;
+	margin-top: -6px;
+	margin-right: -6px;
+	flex-shrink: 0;
 }
 
-.bookmark-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 48rpx;
-	color: $color-primary-container;
+.icon-dim {
 	opacity: 0.2;
-	transition: opacity 0.2s ease;
 }
 
-.paper-card:active .bookmark-icon:not(.bookmarked) {
+.paper-card:active .icon-dim {
 	opacity: 0.5;
-}
-
-.bookmark-icon.bookmarked {
-	opacity: 1;
 }
 
 /* ========== 标题 ========== */
 
 .card-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 40rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 18px;
 	font-weight: 700;
-	color: $color-on-surface;
-	line-height: 1.25;
-	margin-bottom: 16rpx;
+	color: #1a1c1d;
+	line-height: 1.3;
+	margin-bottom: 8px;
 	transition: color 0.2s ease;
+	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .paper-card:active .card-title {
-	color: $color-primary-container;
+	color: #0066cc;
 }
 
 /* ========== 作者 ========== */
 
 .card-authors {
-	font-family: 'Inter', sans-serif;
-	font-size: 28rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
 	font-weight: 500;
-	color: $color-on-secondary-container;
-	margin-bottom: 24rpx;
+	color: #626267;
+	margin-bottom: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* ========== 摘要预览 ========== */
 
 .card-abstract {
-	font-family: 'Inter', sans-serif;
-	font-size: 28rpx;
-	color: $color-on-surface-variant;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	color: #414753;
 	line-height: 1.6;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
+	word-break: break-word;
 }
 </style>

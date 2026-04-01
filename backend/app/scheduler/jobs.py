@@ -54,6 +54,10 @@ async def daily_fetch_papers():
 
     logger.info(f"每日抓取完成，共新入库 {total_new} 篇")
 
+    # 抓取完成后触发推送任务
+    if total_new > 0:
+        await push_daily_papers_notification(new_count=total_new)
+
 
 async def summarize_pending_papers():
     """批量处理 pending 状态论文（每小时执行）。
@@ -101,3 +105,71 @@ async def summarize_pending_papers():
                 )
                 await db.commit()
                 logger.error(f"摘要生成失败 {paper.id}: {e}")
+
+
+async def push_daily_papers_notification(new_count: int = 0):
+    """推送每日论文更新通知给订阅用户。
+
+    在每日抓取完成后执行，向有推送配额的用户发送订阅消息。
+    """
+    from app.db import AsyncSessionLocal
+    from app.models.user_subscription import UserSubscription
+    from app.models.user import User
+    from app.services.wechat_push import push_service
+    from sqlalchemy import select, update
+    from datetime import datetime, timezone
+
+    logger.info("开始推送每日论文通知")
+
+    # 消息模板ID（需要在微信公众平台申请）
+    template_id = settings.WX_SUBSCRIBE_TEMPLATE_ID
+    if not template_id:
+        logger.warning("未配置订阅消息模板ID，跳过推送")
+        return
+
+    async with AsyncSessionLocal() as db:
+        # 查询有配额且启用订阅的用户
+        result = await db.execute(
+            select(UserSubscription, User)
+            .join(User, UserSubscription.user_id == User.id)
+            .where(UserSubscription.enabled == True)
+            .where(UserSubscription.push_quota > 0)
+        )
+        subscribers = result.all()
+
+        if not subscribers:
+            logger.info("没有待推送的订阅用户")
+            return
+
+        success_count = 0
+        for sub, user in subscribers:
+            try:
+                # 发送订阅消息
+                # 模板数据格式需要根据实际模板调整
+                data = {
+                    "thing1": {"value": f"今日新论文 {new_count} 篇"},
+                    "time2": {"value": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")},
+                    "thing3": {"value": "点击查看今日推荐"},
+                }
+
+                success = await push_service.send_subscribe_message(
+                    openid=user.openid,
+                    template_id=template_id,
+                    data=data,
+                    page="pages/home/index",
+                )
+
+                if success:
+                    # 减少配额，更新推送时间
+                    sub.push_quota -= 1
+                    sub.last_pushed_at = datetime.now(timezone.utc)
+                    success_count += 1
+                else:
+                    logger.warning(f"推送失败: user_id={user.id}")
+
+            except Exception as e:
+                logger.error(f"推送异常: user_id={user.id}, error={e}")
+
+        await db.commit()
+
+    logger.info(f"推送完成: 成功 {success_count}/{len(subscribers)}")

@@ -55,7 +55,7 @@ export default {
 }
 
 .category-tag.active {
-	background-color: $color-primary-light;
+	background-color: $color-primary-fixed;
 	color: $color-primary;
 }
 </style>

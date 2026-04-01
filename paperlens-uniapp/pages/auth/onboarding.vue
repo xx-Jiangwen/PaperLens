@@ -120,117 +120,124 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
-
 .page {
 	min-height: 100vh;
-	background-color: $color-bg;
+	background-color: #F5F5F7;
 	display: flex;
 	flex-direction: column;
 }
 
 .header {
-	padding: $spacing-6 $spacing-4 $spacing-4;
+	padding: 24px 16px 16px;
 }
 
 .title {
-	font-size: $font-size-title1;
-	font-weight: $font-weight-bold;
-	color: $color-text-primary;
-	margin-bottom: $spacing-2;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 28px;
+	font-weight: 700;
+	color: #1a1c1d;
+	margin-bottom: 8px;
 }
 
 .subtitle {
-	font-size: $font-size-body;
-	color: $color-text-secondary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	color: #414753;
 }
 
 .category-section {
 	flex: 1;
-	padding: 0 $spacing-4;
+	padding: 0 16px;
 }
 
 .section-label {
-	font-size: $font-size-headline;
-	font-weight: $font-weight-semibold;
-	color: $color-text-primary;
-	margin-bottom: $spacing-3;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1a1c1d;
+	margin-bottom: 12px;
 }
 
 .nickname-section {
-	padding: 0 $spacing-4 $spacing-4;
+	padding: 0 16px 16px;
 }
 
 .nickname-input {
-	height: 88rpx;
-	background-color: $color-bg-grouped;
-	border-radius: $radius-sm;
-	padding: 0 $spacing-4;
-	font-size: $font-size-body;
-	color: $color-text-primary;
+	height: 44px;
+	background-color: #ffffff;
+	border-radius: 8px;
+	padding: 0 16px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	color: #1a1c1d;
+	border: 1px solid #e8e8ea;
 }
 
 .category-grid {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	margin: 0 -$spacing-2;
+	margin: 0 -4px;
 }
 
 .category-card {
-	width: calc(50% - $spacing-4);
-	margin: $spacing-2;
-	padding: $spacing-4;
-	background-color: $color-bg-grouped;
-	border-radius: $radius-md;
+	width: calc(50% - 8px);
+	margin: 4px;
+	padding: 16px;
+	background-color: #ffffff;
+	border-radius: 12px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	height: 160rpx;
-	border: 4rpx solid transparent;
-	transition: all $duration-fast;
+	height: 80px;
+	border: 2px solid transparent;
+	transition: all 0.15s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .category-card.active {
-	background-color: $color-primary-light;
-	border-color: $color-primary;
+	background-color: #d7e3ff;
+	border-color: #0066cc;
 }
 
 .category-icon {
-	font-size: 48rpx;
-	margin-bottom: $spacing-2;
+	font-size: 24px;
+	margin-bottom: 8px;
 }
 
 .category-name {
-	font-size: $font-size-subheadline;
-	font-weight: $font-weight-medium;
-	color: $color-text-primary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1c1d;
 }
 
 .hint {
 	text-align: center;
-	font-size: $font-size-footnote;
-	color: $color-text-tertiary;
-	padding: $spacing-4;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 13px;
+	color: #727784;
+	padding: 16px;
 }
 
 .action-section {
-	padding: $spacing-4;
-	padding-bottom: calc($spacing-4 + env(safe-area-inset-bottom));
+	padding: 16px;
+	padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
 .btn-start {
-	height: 96rpx;
-	background-color: $color-primary;
-	border-radius: $radius-md;
-	font-size: $font-size-body;
-	font-weight: $font-weight-semibold;
+	height: 48px;
+	background-color: #0066cc;
+	border-radius: 12px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	font-weight: 600;
 	color: #FFFFFF;
 }
 
 .btn-start[disabled] {
-	background-color: $color-bg-grouped;
-	color: $color-text-tertiary;
+	background-color: #e8e8ea;
+	color: #727784;
 }
 </style>

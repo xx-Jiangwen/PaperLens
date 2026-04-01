@@ -99,12 +99,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
-
 .ai-summary {
-	background-color: $color-bg-card;
-	border-radius: $radius-md;
+	background-color: #ffffff;
+	border-radius: 12px;
 	overflow: hidden;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 }
 
 .summary-header {
@@ -112,7 +111,7 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	padding: $spacing-4;
+	padding: 16px;
 }
 
 .header-left {
@@ -122,44 +121,46 @@ export default {
 }
 
 .header-icon {
-	font-size: 32rpx;
-	margin-right: $spacing-2;
+	font-size: 16px;
+	margin-right: 8px;
 }
 
 .header-title {
-	font-size: $font-size-headline;
-	font-weight: $font-weight-semibold;
-	color: $color-text-primary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1a1c1d;
 }
 
 .header-toggle {
-	font-size: $font-size-subheadline;
-	color: $color-primary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	color: #0066cc;
 }
 
 .summary-content {
-	padding: 0 $spacing-4 $spacing-4;
+	padding: 0 16px 16px;
 }
 
 .processing {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: $spacing-6;
+	padding: 24px;
 }
 
 .processing-animation {
 	display: flex;
 	flex-direction: row;
-	margin-bottom: $spacing-3;
+	margin-bottom: 12px;
 }
 
 .dot {
-	width: 16rpx;
-	height: 16rpx;
+	width: 8px;
+	height: 8px;
 	border-radius: 50%;
-	background-color: $color-primary;
-	margin: 0 $spacing-1;
+	background-color: #0066cc;
+	margin: 0 4px;
 	animation: bounce 1.4s infinite ease-in-out;
 }
 
@@ -187,8 +188,9 @@ export default {
 }
 
 .processing-text {
-	font-size: $font-size-subheadline;
-	color: $color-text-secondary;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	color: #414753;
 }
 
 .failed,
@@ -196,28 +198,30 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: $spacing-4;
+	padding: 16px;
 }
 
 .failed-text,
 .pending-text {
-	font-size: $font-size-subheadline;
-	color: $color-text-tertiary;
-	margin-bottom: $spacing-3;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	color: #727784;
+	margin-bottom: 12px;
 }
 
 .retry-btn,
 .generate-btn {
-	padding: $spacing-2 $spacing-4;
-	background-color: $color-primary-light;
-	color: $color-primary;
-	border-radius: $radius-sm;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-medium;
+	padding: 8px 16px;
+	background-color: #d7e3ff;
+	color: #0066cc;
+	border-radius: 8px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 13px;
+	font-weight: 500;
 }
 
 .section {
-	margin-bottom: $spacing-4;
+	margin-bottom: 16px;
 }
 
 .section:last-of-type {
@@ -225,23 +229,26 @@ export default {
 }
 
 .section-label {
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-semibold;
-	color: $color-primary;
-	margin-bottom: $spacing-2;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	color: #0066cc;
+	margin-bottom: 8px;
 }
 
 .section-text {
-	font-size: $font-size-body;
-	color: $color-text-secondary;
-	line-height: $line-height-relaxed;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
+	color: #414753;
+	line-height: 1.6;
 }
 
 .disclaimer {
-	font-size: $font-size-caption;
-	color: $color-text-tertiary;
-	margin-top: $spacing-4;
-	padding-top: $spacing-3;
-	border-top: 1rpx solid $color-separator;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 11px;
+	color: #727784;
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid rgba(193, 198, 213, 0.15);
 }
 </style>

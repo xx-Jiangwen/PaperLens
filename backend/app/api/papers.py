@@ -1,8 +1,9 @@
 from typing import Optional
 from fastapi import APIRouter, Query
 from sqlalchemy import select, desc, or_
-from app.dependencies import DbSession
+from app.dependencies import DbSession, CurrentUserId
 from app.models.paper import Paper
+from app.models.reading_log import ReadingLog
 from app.sources.arxiv_source import ArxivSource
 
 router = APIRouter()
@@ -22,8 +23,11 @@ async def list_papers(
     if category:
         stmt = stmt.where(Paper.primary_category == category)
     if q:
+        # 转义 LIKE 特殊字符，防止用户输入 % 或 _ 影响匹配
+        escaped_q = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped_q}%"
         stmt = stmt.where(
-            or_(Paper.title.ilike(f"%{q}%"), Paper.abstract.ilike(f"%{q}%"))
+            or_(Paper.title.ilike(pattern), Paper.abstract.ilike(pattern))
         )
 
     offset = (page - 1) * size
@@ -36,13 +40,14 @@ async def list_papers(
 
 @router.get("/today")
 async def today_papers(db: DbSession):
-    """今日新抓取论文"""
-    from datetime import date, datetime, timezone
-    today_start = datetime.combine(date.today(), datetime.min.time()).replace(tzinfo=timezone.utc)
+    """最新论文（最近 7 天发表的）"""
+    from datetime import datetime, timedelta, timezone
 
+    # 最近 7 天发表的论文，按发表时间倒序
+    week_ago = datetime.now(timezone.utc) - timedelta(days=7)
     stmt = (
         select(Paper)
-        .where(Paper.fetched_at >= today_start)
+        .where(Paper.published_at >= week_ago)
         .order_by(desc(Paper.published_at))
         .limit(50)
     )
@@ -52,12 +57,18 @@ async def today_papers(db: DbSession):
 
 
 @router.get("/{paper_id}")
-async def get_paper(paper_id: str, db: DbSession):
+async def get_paper(paper_id: str, db: DbSession, user_id: CurrentUserId):
     """单篇论文详情"""
     result = await db.execute(select(Paper).where(Paper.id == paper_id))
     paper = result.scalar_one_or_none()
     if not paper:
         return {"code": 404, "msg": "论文不存在", "data": None}
+
+    # 记录阅读行为（已登录用户）
+    if user_id:
+        db.add(ReadingLog(user_id=user_id, paper_id=paper_id))
+        await db.commit()
+
     return {"code": 200, "msg": "success", "data": _paper_out(paper)}
 
 

@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     # 微信
     WX_APP_ID: str = ""
     WX_APP_SECRET: str = ""
+    # 微信订阅消息模板ID（需要在微信公众平台申请）
+    WX_SUBSCRIBE_TEMPLATE_ID: str = ""
 
     # 官方额度 LLM
     OFFICIAL_LLM_BASE_URL: str = "https://api.openai.com/v1"

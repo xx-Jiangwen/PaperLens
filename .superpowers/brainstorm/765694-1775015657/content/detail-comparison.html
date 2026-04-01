@@ -1,0 +1,122 @@
+<h2>设计细节对比</h2>
+<p class="subtitle">逐页对比当前实现与设计参考的差异</p>
+
+<div class="section">
+  <h3>1. 首页 - 论文卡片</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前实现</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 16px;">
+        <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="background: #e8e8ea; color: #414753; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">ARXIV:2403.1205</span>
+            <span style="color: #0066cc; opacity: 0.2;">bookmark</span>
+          </div>
+          <h4 style="font-family: Manrope; font-size: 20px; font-weight: 700; margin: 0 0 8px 0;">Scaling Laws for Precision...</h4>
+          <p style="font-size: 14px; color: #626267; margin: 0 0 12px 0;">Tim Dettmers 等</p>
+          <p style="font-size: 14px; color: #414753; line-height: 1.6; margin: 0;">We provide an empirical study...</p>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">设计参考</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 16px;">
+        <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="background: #e8e8ea; color: #414753; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 999px;">ARXIV:2403.1205</span>
+            <span style="color: #0066cc;">bookmark</span>
+          </div>
+          <h4 style="font-family: Manrope; font-size: 20px; font-weight: 700; margin: 0 0 8px 0;">Scaling Laws for Precision...</h4>
+          <p style="font-size: 14px; color: #626267; margin: 0 0 12px 0;">Tim Dettmers 等</p>
+          <p style="font-size: 14px; color: #414753; line-height: 1.6; margin: 0;">We provide an empirical study...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros-cons" style="margin-top: 16px;">
+    <div class="pros"><h4>需调整</h4><ul><li>收藏图标默认 opacity: 0.2，hover 时显示</li><li>卡片 hover 阴影加深效果</li></ul></div>
+    <div class="cons"><h4>已对齐</h4><ul><li>卡片圆角、内边距</li><li>来源标签样式</li><li>字体和颜色</li></ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. 详情页 - AI 摘要区块</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前实现</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 16px;">
+        <div style="background: rgba(0,102,204,0.05); border: 1px solid rgba(0,102,204,0.1); border-radius: 24px; padding: 32px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <span style="color: #0066cc;">auto_awesome</span>
+            <span style="font-weight: 700; color: #0066cc;">AI 摘要</span>
+          </div>
+          <p style="font-size: 16px; line-height: 1.6; margin: 0;">本文提出了 Transformer 架构...</p>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">设计参考</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 16px;">
+        <div style="background: rgba(0,102,204,0.05); border: 1px solid rgba(0,102,204,0.1); border-radius: 24px; padding: 32px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <span style="color: #0066cc; font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            <span style="font-family: Manrope; font-weight: 700; color: #0066cc; font-size: 18px;">AI 摘要</span>
+          </div>
+          <p style="font-size: 18px; font-weight: 500; line-height: 1.6; margin: 0 0 16px 0;">本文提出了 Transformer 架构...</p>
+          <ul style="margin: 0; padding: 0; list-style: none;">
+            <li style="display: flex; gap: 12px; margin-bottom: 8px;">
+              <span style="color: #0066cc;">•</span>
+              <span>通过并行化显著提高了训练效率</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros-cons" style="margin-top: 16px;">
+    <div class="pros"><h4>需调整</h4><ul><li>AI 图标使用 filled 样式</li><li>标题使用 Manrope 字体</li><li>摘要列表项样式优化</li></ul></div>
+    <div class="cons"><h4>已对齐</h4><ul><li>背景色和边框</li><li>圆角和内边距</li></ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. 个人中心 - 头像区域</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前实现</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 24px; text-align: center;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #e8e8ea; margin: 0 auto 16px; box-shadow: 0 0 0 8px white;"></div>
+        <span style="font-family: Manrope; font-size: 24px; font-weight: 700;">林书年</span>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">设计参考</div>
+      <div class="mockup-body" style="background: #f5f5f7; padding: 24px; text-align: center;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #e8e8ea; margin: 0 auto 16px; box-shadow: 0 0 0 8px white, 0 4px 16px rgba(0,0,0,0.08);"></div>
+        <span style="font-family: Manrope; font-size: 24px; font-weight: 700; letter-spacing: -0.02em;">林书年</span>
+      </div>
+    </div>
+  </div>
+  <div class="pros-cons" style="margin-top: 16px;">
+    <div class="pros"><h4>需调整</h4><ul><li>头像添加柔和阴影</li><li>用户名字间距优化</li></ul></div>
+    <div class="cons"><h4>已对齐</h4><ul><li>头像尺寸和圆角</li><li>白色环绕效果</li></ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>重构优先级</h3>
+  <div class="options">
+    <div class="option selected" data-choice="all" onclick="toggleSelect(this)">
+      <div class="letter">✓</div>
+      <div class="content">
+        <h3>全部重构</h3>
+        <p>一次性对齐所有页面到设计参考标准</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="text-align: center; padding: 24px; background: rgba(34, 197, 94, 0.1); border-radius: 12px;">
+  <p style="margin: 0; font-weight: 600; color: #166534;">所有 5 个页面已选择，准备开始重构</p>
+  <p style="margin: 8px 0 0 0; font-size: 14px; color: #166534;">请在终端确认，我将开始编写设计文档</p>
+</div>

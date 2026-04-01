@@ -1,0 +1,86 @@
+<h2>PaperLens UI 重构对比</h2>
+<p class="subtitle">分析当前小程序界面与设计参考的差异，选择需要调整的方向</p>
+
+<div class="section">
+  <h3>整体设计风格分析</h3>
+  <p>设计参考（stitch）采用 <strong>Material Design 3</strong> 风格，具有以下特征：</p>
+  <ul>
+    <li><strong>配色</strong>：完整的 MD3 色彩系统（surface 变体、primary/secondary/tertiary）</li>
+    <li><strong>字体</strong>：Manrope（标题）+ Inter（正文）</li>
+    <li><strong>视觉效果</strong>：玻璃拟态导航栏、柔和阴影、大圆角</li>
+    <li><strong>布局</strong>：杂志编辑风格、清晰的视觉层级</li>
+  </ul>
+  <p style="margin-top: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+    <strong>发现：</strong>当前小程序已经采用了相似的设计系统（见 variables.scss），但部分页面的实现细节与设计参考存在差异。
+  </p>
+</div>
+
+<div class="section">
+  <h3>需要重构的页面</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="home" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>首页 (home/index.vue)</h3>
+        <p>论文卡片样式、来源标签格式、收藏按钮交互</p>
+        <ul style="margin-top: 8px; font-size: 14px; color: #666;">
+          <li>来源标签：当前较小，设计参考更醒目</li>
+          <li>卡片阴影：当前较浅，设计参考更明显</li>
+          <li>收藏图标：hover 显示逻辑需调整</li>
+        </ul>
+      </div>
+    </div>
+    <div class="option" data-choice="detail" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>详情页 (home/detail.vue)</h3>
+        <p>AI 摘要区块样式、关键词标签、摘要卡片</p>
+        <ul style="margin-top: 8px; font-size: 14px; color: #666;">
+          <li>AI 摘要：设计参考使用圆角卡片 + 图标标题</li>
+          <li>关键词：设计参考使用白色背景标签</li>
+          <li>原文摘要：设计参考使用独立卡片容器</li>
+        </ul>
+      </div>
+    </div>
+    <div class="option" data-choice="profile" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>个人中心 (profile/index.vue)</h3>
+        <p>头像区域、菜单卡片、整体布局</p>
+        <ul style="margin-top: 8px; font-size: 14px; color: #666;">
+          <li>头像区：设计参考使用阴影环绕效果</li>
+          <li>菜单卡片：设计参考分隔线样式不同</li>
+          <li>底部导航：设计参考使用圆角背景高亮</li>
+        </ul>
+      </div>
+    </div>
+    <div class="option" data-choice="bookmarks" onclick="toggleSelect(this)">
+      <div class="letter">4</div>
+      <div class="content">
+        <h3>收藏页 (profile/bookmarks.vue)</h3>
+        <p>论文卡片样式、元数据显示、空状态</p>
+        <ul style="margin-top: 8px; font-size: 14px; color: #666;">
+          <li>卡片布局：设计参考使用更紧凑的布局</li>
+          <li>元数据：设计参考使用图标 + 文字组合</li>
+          <li>查看更多：设计参考使用居中按钮样式</li>
+        </ul>
+      </div>
+    </div>
+    <div class="option" data-choice="settings" onclick="toggleSelect(this)">
+      <div class="letter">5</div>
+      <div class="content">
+        <h3>设置页 (profile/settings.vue)</h3>
+        <p>Hero 区域、分类选择器、滑块样式</p>
+        <ul style="margin-top: 8px; font-size: 14px; color: #666;">
+          <li>Hero 标题：设计参考使用 3xl extrabold</li>
+          <li>分类芯片：设计参考选中态使用 primary-container</li>
+          <li>滑块：设计参考使用自定义样式</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <p style="font-size: 14px; color: #666;">请选择需要重构的页面（可多选），然后点击下方按钮确认。</p>
+</div>

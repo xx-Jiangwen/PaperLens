@@ -1,25 +1,25 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航栏 -->
-		<view class="header">
-			<view class="header-inner">
+		<view class="header" :style="{ paddingTop: navBarTop + 'px' }">
+			<view class="header-inner" :style="{ height: navBarHeight + 'px' }">
 				<view class="header-left">
 					<view class="icon-btn" @tap="goBack">
-						<MdIcon name="arrow-back" :size="44" color="#1a1c1d" />
+						<MdIcon name="arrow-back" size="48" color="#1a1c1d" />
 					</view>
-					<text class="brand-title">PaperLens</text>
 				</view>
+				<text class="brand-title">PaperLens</text>
 				<view class="header-right">
 					<view class="icon-btn" @tap="onBookmark">
 						<MdIcon
 							name="bookmark"
-							:size="44"
+							size="48"
 							:color="isBookmarked ? '#0066cc' : '#1a1c1d'"
 							:filled="isBookmarked"
 						/>
 					</view>
 					<view class="icon-btn" @tap="onShare">
-						<MdIcon name="share" :size="44" color="#1a1c1d" />
+						<MdIcon name="share" size="48" color="#1a1c1d" />
 					</view>
 				</view>
 			</view>
@@ -31,7 +31,7 @@
 		</view>
 
 		<!-- 论文详情 -->
-		<view v-else-if="paper" class="main-content">
+		<scroll-view v-else-if="paper" class="main-content" :style="{ paddingTop: contentTop + 'px' }" scroll-y="true">
 			<!-- 标题 -->
 			<view class="paper-title">{{ paper.title }}</view>
 
@@ -57,7 +57,7 @@
 			<!-- AI 摘要 -->
 			<view class="ai-section">
 				<view class="ai-header">
-					<MdIcon name="auto-awesome" :size="36" color="#0066cc" filled />
+					<MdIcon name="auto-awesome" size="36" color="#0066cc" filled />
 					<text class="ai-title">AI 摘要</text>
 				</view>
 				<view v-if="paper.summary_status === 'done'" class="ai-content">
@@ -88,17 +88,15 @@
 					<text class="abstract-text">{{ paper.abstract }}</text>
 				</view>
 			</view>
-		</view>
+		</scroll-view>
 
-		<!-- 底部导航 -->
+		<!-- 底部导航 - 仅图标 -->
 		<view class="bottom-nav">
-			<view class="nav-item active">
-				<MdIcon name="home" :size="40" color="#3b82f6" filled />
-				<text class="nav-label">首页</text>
+			<view class="nav-item active" @tap="switchTab('/pages/home/index')">
+				<MdIcon name="home" size="52" color="#3b82f6" filled />
 			</view>
 			<view class="nav-item" @tap="switchTab('/pages/profile/index')">
-				<MdIcon name="person" :size="40" color="#71717a" />
-				<text class="nav-label">个人</text>
+				<MdIcon name="person" size="52" color="#a1a1aa" />
 			</view>
 		</view>
 	</view>
@@ -119,6 +117,14 @@ export default {
 		const bookmarksStore = useBookmarksStore()
 		return { papersStore, bookmarksStore }
 	},
+
+		data() {
+			return {
+				navBarTop: 20,
+				navBarHeight: 56,
+				contentTop: 120
+			}
+		},
 
 	computed: {
 		paper() {
@@ -146,6 +152,20 @@ export default {
 	},
 
 	onLoad(options) {
+		// 获取胶囊按钮位置
+		try {
+			const menuRect = uni.getMenuButtonBoundingClientRect()
+			if (menuRect) {
+				this.navBarTop = menuRect.bottom + 8
+				this.navBarHeight = menuRect.height
+				this.contentTop = menuRect.bottom + 8 + this.navBarHeight + 16
+			}
+		} catch (e) {
+			const systemInfo = uni.getSystemInfoSync()
+			this.navBarTop = (systemInfo.statusBarHeight || 20) + 44
+			this.contentTop = this.navBarTop + 56 + 16
+		}
+
 		const id = decodeURIComponent(options.id || '')
 		if (id) {
 			this.papersStore.fetchPaperDetail(id)
@@ -188,11 +208,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
+/* ========== 页面基础 ========== */
 
 .page {
 	min-height: 100vh;
-	background-color: $color-bg;
+	background-color: #F5F5F7;
+	display: flex;
+	flex-direction: column;
 }
 
 /* ========== 顶部导航栏 ========== */
@@ -203,9 +225,11 @@ export default {
 	left: 0;
 	right: 0;
 	z-index: 100;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
+	background-color: rgba(255, 255, 255, 0.85);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+	/* 安全区域适配 */
+	padding-top: constant(safe-area-inset-top);
+	padding-top: env(safe-area-inset-top);
 }
 
 .header-inner {
@@ -213,36 +237,46 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	height: 128rpx;
-	padding: 0 48rpx;
-	max-width: 1280rpx;
+	height: 56px;
+	padding: 12px 16px 8px;
+	max-width: 600px;
 	margin: 0 auto;
 }
 
-.header-left,
+.header-left {
+	width: 48px;
+	display: flex;
+	align-items: center;
+}
+
 .header-right {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 16rpx;
+	gap: 4px;
+	width: 96px;
+	justify-content: flex-end;
 }
 
 .icon-btn {
-	padding: 16rpx;
+	padding: 8px;
 }
 
 .brand-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 40rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 20px;
 	font-weight: 700;
 	color: #18181b;
+	text-align: center;
+	flex: 1;
 }
 
 /* ========== 主内容区 ========== */
 
 .main-content {
-	padding: 192rpx 48rpx 200rpx;
-	max-width: 1280rpx;
+	flex: 1;
+	padding: 120px 16px 100px;
+	max-width: 600px;
 	margin: 0 auto;
 }
 
@@ -250,76 +284,76 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 80vh;
+	height: 60vh;
 }
 
 .loading-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
-	color: $color-on-surface-variant;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
+	color: #414753;
 }
 
-/* ========== 标题 - 4xl/5xl ========== */
+/* ========== 标题 ========== */
 
 .paper-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 80rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 28px;
 	font-weight: 800;
-	color: $color-on-surface;
-	line-height: 1.1;
+	color: #1a1c1d;
+	line-height: 1.2;
 	letter-spacing: -0.02em;
-	margin-bottom: 32rpx;
+	margin-bottom: 16px;
 }
 
 /* ========== 作者 + 年份 ========== */
 
-.meta-row {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 24rpx;
-	margin-bottom: 64rpx;
-}
-
+	.meta-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 32px;
+		flex-wrap: wrap;
+	}
 .authors-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 36rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
 	font-weight: 500;
-	color: $color-on-surface-variant;
+	color: #414753;
 }
 
 .dot-sep {
-	width: 16rpx;
-	height: 16rpx;
+	width: 6px;
+	height: 6px;
 	border-radius: 50%;
-	background-color: $color-surface-variant;
+	background-color: #e2e2e4;
 }
 
 .year-badge {
-	background-color: $color-surface-container-high;
-	color: $color-on-surface-variant;
-	font-family: 'Inter', sans-serif;
-	font-size: 26rpx;
+	background-color: #e8e8ea;
+	color: #414753;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 12px;
 	font-weight: 600;
 	letter-spacing: 0.05em;
-	padding: 12rpx 24rpx;
-	border-radius: 999rpx;
+	padding: 6px 12px;
+	border-radius: 999px;
 }
 
 /* ========== 关键词 ========== */
 
 .keywords-section {
-	margin-bottom: 64rpx;
+	margin-bottom: 32px;
 }
 
 .section-label {
-	font-family: 'Manrope', sans-serif;
-	font-size: 26rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 12px;
 	font-weight: 700;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: rgba($color-on-surface-variant, 0.7);
-	margin-bottom: 24rpx;
+	color: rgba(65, 71, 83, 0.7);
+	margin-bottom: 12px;
 	display: block;
 }
 
@@ -327,111 +361,107 @@ export default {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	gap: 16rpx;
+	gap: 8px;
 }
 
 .keyword-tag {
-	background-color: $color-surface-container-lowest;
-	color: $color-on-surface;
-	font-family: 'Inter', sans-serif;
-	font-size: 28rpx;
+	background-color: #ffffff;
+	color: #1a1c1d;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
 	font-weight: 500;
-	padding: 20rpx 32rpx;
-	border-radius: 999rpx;
-	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+	padding: 10px 16px;
+	border-radius: 999px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* ========== AI 摘要 ========== */
 
 .ai-section {
-	background-color: rgba($color-primary-container, 0.05);
-	border: 2rpx solid rgba($color-primary-container, 0.1);
-	border-radius: 48rpx;
-	padding: 64rpx;
-	margin-bottom: 64rpx;
+	background-color: rgba(0, 102, 204, 0.05);
+	border: 1px solid rgba(0, 102, 204, 0.1);
+	border-radius: 16px;
+	padding: 24px;
+	margin-bottom: 32px;
 }
 
 .ai-header {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 16rpx;
-	margin-bottom: 32rpx;
+	gap: 8px;
+	margin-bottom: 16px;
 }
 
 .ai-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 36rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 18px;
 	font-weight: 700;
-	color: $color-primary-container;
-}
-
-.ai-content {
-	// 内容
+	color: #0066cc;
 }
 
 .ai-paragraph {
-	font-family: 'Inter', sans-serif;
-	font-size: 36rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
 	font-weight: 500;
-	color: $color-on-surface;
+	color: #1a1c1d;
 	line-height: 1.6;
-	margin-bottom: 32rpx;
+	margin-bottom: 16px;
 }
 
 .ai-list {
 	display: flex;
 	flex-direction: column;
-	gap: 24rpx;
+	gap: 12px;
 }
 
 .ai-list-item {
 	display: flex;
 	flex-direction: row;
-	gap: 24rpx;
+	gap: 12px;
 }
 
 .bullet {
-	font-size: 32rpx;
-	color: $color-primary-container;
+	font-size: 14px;
+	color: #0066cc;
 }
 
 .list-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 36rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
 	font-weight: 500;
-	color: $color-on-surface;
+	color: #1a1c1d;
 	line-height: 1.6;
 }
 
 .ai-status {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
-	color: $color-on-surface-variant;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	color: #414753;
 	text-align: center;
-	padding: 32rpx;
+	padding: 16px;
 }
 
 /* ========== 原文摘要 ========== */
 
 .abstract-section {
-	margin-bottom: 64rpx;
+	margin-bottom: 32px;
 }
 
 .abstract-card {
-	background-color: $color-surface-container-lowest;
-	border-radius: 48rpx;
-	padding: 64rpx;
+	background-color: #ffffff;
+	border-radius: 16px;
+	padding: 24px;
 }
 
 .abstract-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 36rpx;
-	color: $color-on-surface;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
+	color: #1a1c1d;
 	line-height: 1.6;
 }
 
-/* ========== 底部导航 ========== */
+/* ========== 底部导航 - 仅图标 ========== */
 
 .bottom-nav {
 	position: fixed;
@@ -442,39 +472,29 @@ export default {
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
-	gap: 32rpx;
-	padding: 24rpx 32rpx 64rpx;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
-	border-top-left-radius: 32rpx;
-	border-top-right-radius: 32rpx;
-	box-shadow: 0 -8rpx 80rpx rgba(26, 28, 29, 0.06);
+	gap: 64px;
+	padding: 16px 16px 32px;
+	background-color: rgba(255, 255, 255, 0.85);
+	border-top: 1px solid rgba(0, 0, 0, 0.04);
+	padding-bottom: calc(16px + constant(safe-area-inset-bottom));
+	padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
 .nav-item {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 12rpx 48rpx;
-	border-radius: 24rpx;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
 	transition: all 0.2s ease;
+}
+
+.nav-item:active {
+	transform: scale(0.9);
 }
 
 .nav-item.active {
 	background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-label {
-	font-family: 'Inter', sans-serif;
-	font-size: 24rpx;
-	font-weight: 500;
-	color: #71717a;
-	margin-top: 8rpx;
-}
-
-.nav-item.active .nav-label {
-	color: #3b82f6;
 }
 </style>

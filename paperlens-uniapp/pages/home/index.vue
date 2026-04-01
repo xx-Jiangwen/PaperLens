@@ -1,22 +1,24 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航栏 -->
-		<view class="header">
-			<view class="header-inner">
+		<view class="header" :style="{ paddingTop: navBarTop + 'px' }">
+			<view class="header-inner" :style="{ height: navBarHeight + 'px' }">
 				<view class="header-left">
 					<view class="icon-btn">
-						<MdIcon name="menu" :size="44" color="#71717a" />
+						<MdIcon name="menu" size="48" color="#3b82f6" />
 					</view>
-					<text class="brand-title">PaperLens</text>
 				</view>
-				<view class="icon-btn" @tap="goToSearch">
-					<MdIcon name="search" :size="44" color="#71717a" />
+				<text class="brand-title">PaperLens</text>
+				<view class="header-right">
+					<view class="icon-btn" @tap="goToSearch">
+						<MdIcon name="search" size="48" color="#3b82f6" />
+					</view>
 				</view>
 			</view>
 		</view>
 
 		<!-- 主内容区 -->
-		<view class="main-content">
+		<scroll-view class="main-content" :style="{ paddingTop: headerHeight + 'px' }" scroll-y="true">
 			<!-- 标题 -->
 			<view class="page-title">学术动态</view>
 
@@ -39,7 +41,7 @@
 						<view class="bookmark-btn" @tap.stop="onBookmark(paper)">
 							<MdIcon
 								name="bookmark"
-								:size="48"
+								size="48"
 								:color="isBookmarked(paper.id) ? '#0066cc' : '#0066cc'"
 								:filled="isBookmarked(paper.id)"
 								:class="{ 'icon-dim': !isBookmarked(paper.id) }"
@@ -53,21 +55,19 @@
 
 				<!-- 空状态 -->
 				<view v-if="!loading && papers.length === 0" class="empty-state">
-					<MdIcon name="description" :size="128" color="#c1c6d5" />
+					<MdIcon name="description" size="128" color="#c1c6d5" />
 					<text class="empty-text">暂无论文</text>
 				</view>
 			</view>
-		</view>
+		</scroll-view>
 
 		<!-- 底部导航 -->
 		<view class="bottom-nav">
-			<view class="nav-item active">
-				<MdIcon name="home" :size="40" color="#3b82f6" filled />
-				<text class="nav-label">首页</text>
+			<view class="nav-item active" @tap="switchTab('/pages/home/index')">
+				<MdIcon name="home" size="52" color="#3b82f6" filled />
 			</view>
 			<view class="nav-item" @tap="switchTab('/pages/profile/index')">
-				<MdIcon name="person" :size="40" color="#71717a" />
-				<text class="nav-label">个人</text>
+				<MdIcon name="person" size="52" color="#a1a1aa" />
 			</view>
 		</view>
 	</view>
@@ -89,16 +89,45 @@ export default {
 		return { papersStore, bookmarksStore }
 	},
 
+	data() {
+		return {
+			statusBarHeight: 20,
+			navBarTop: 20,
+			navBarHeight: 56
+		}
+	},
+
 	computed: {
 		papers() {
 			return this.papersStore.featuredPapers
 		},
 		loading() {
 			return this.papersStore.featuredLoading
+		},
+		headerHeight() {
+			return this.navBarTop + this.navBarHeight + 16
 		}
 	},
 
 	onLoad() {
+		// 获取状态栏高度和胶囊按钮位置
+		const systemInfo = uni.getSystemInfoSync()
+		this.statusBarHeight = systemInfo.statusBarHeight || 20
+
+		// 获取微信胶囊按钮位置，确保导航栏不被遮挡
+		try {
+			const menuRect = uni.getMenuButtonBoundingClientRect()
+			if (menuRect) {
+				// 导航栏顶部位置 = 胶囊底部 + 间距
+				this.navBarTop = menuRect.bottom + 8
+				// 导航栏高度与胶囊对齐
+				this.navBarHeight = menuRect.height
+			}
+		} catch (e) {
+			// 非微信环境使用默认值
+			this.navBarTop = this.statusBarHeight + 44
+		}
+
 		this.papersStore.fetchFeaturedPapers()
 	},
 
@@ -119,9 +148,9 @@ export default {
 
 		formatAuthors(authors) {
 			if (!authors || authors.length === 0) return ''
-			const first = authors[0]
-			const more = authors.length > 1 ? ' 等' : ''
-			return `${first}${more}`
+			const display = authors.slice(0, 3).join(', ')
+			const more = authors.length > 3 ? ' 等' : ''
+			return `${display}${more}`
 		},
 
 		isBookmarked(paperId) {
@@ -154,237 +183,244 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
+/* ========== 页面基础 ========== */
 
-.page {
-	min-height: 100vh;
-	background-color: $color-bg;
-	padding-bottom: 140rpx;
-}
+	.page {
+		min-height: 100vh;
+		background-color: #F5F5F7;
+		display: flex;
+		flex-direction: column;
+		overflow-x: hidden;
+		width: 100%;
+	}
 
 /* ========== 顶部导航栏 ========== */
 
-.header {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 100;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
-}
+	.header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		background-color: rgba(255, 255, 255, 0.85);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+	}
 
-.header-inner {
-	display: flex;
-	flex-direction: row;
+	.header-inner {
+		display: flex;
+		flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	height: 128rpx;
-	padding: 0 48rpx;
-	max-width: 1120rpx;
-	margin: 0 auto;
-}
+		height: 56px;
+		padding: 12px 16px 8px;
+		max-width: 600px;
+		margin: 0 auto;
+	}
 
-.header-left {
-	display: flex;
-	flex-direction: row;
+.header-left,
+	.header-right {
+		width: 48px;
+		display: flex;
 	align-items: center;
-	gap: 32rpx;
-}
+	}
 
-.icon-btn {
-	padding: 16rpx;
-}
+	.icon-btn {
+		padding: 8px;
+	}
 
-.brand-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 40rpx;
-	font-weight: 700;
-	color: #18181b;
-	letter-spacing: -0.02em;
-}
+	.brand-title {
+		font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+		font-size: 20px;
+		font-weight: 700;
+		color: #18181b;
+		letter-spacing: -0.02em;
+		text-align: center;
+		flex: 1;
+	}
 
 /* ========== 主内容区 ========== */
 
-.main-content {
-	padding: 192rpx 48rpx 0;
-	max-width: 896rpx;
-	margin: 0 auto;
-}
+	.main-content {
+		flex: 1;
+		padding: 0 16px 100px;
+		max-width: 600px;
+		margin: 0 auto;
+		width: 100%;
+		box-sizing: border-box;
+		overflow-x: hidden;
+	}
 
-.page-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 60rpx;
-	font-weight: 800;
-	color: $color-on-surface;
-	letter-spacing: -0.02em;
-	margin-bottom: 48rpx;
-}
+	.page-title {
+		font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+		font-size: 30px;
+		font-weight: 800;
+		color: #1a1c1d;
+		letter-spacing: -0.02em;
+		margin-bottom: 24px;
+	}
 
 /* ========== 论文卡片 ========== */
 
-.paper-list {
-	display: flex;
-	flex-direction: column;
-	gap: 48rpx;
-}
+	.paper-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		width: 100%;
+		box-sizing: border-box;
+		overflow-x: hidden;
+	}
 
-.paper-card {
-	background-color: $color-surface-container-lowest;
-	border-radius: 24rpx;
-	padding: 48rpx;
-	box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.04);
-	transition: all 0.3s ease;
-}
+	.paper-card {
+		background-color: #ffffff;
+		border-radius: 12px;
+		padding: 20px;
+		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+		transition: all 0.3s ease;
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
 
-.paper-card:active {
-	box-shadow: 0 16rpx 80rpx rgba(0, 0, 0, 0.08);
-	transform: scale(0.99);
-}
+	.paper-card:active {
+		box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+		transform: scale(0.98);
+	}
 
-.card-top {
-	display: flex;
-	flex-direction: row;
+	.card-top {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
 	justify-content: space-between;
 	align-items: flex-start;
-	margin-bottom: 24rpx;
-}
+		margin-bottom: 12px;
+	}
 
-.source-badge {
-	background-color: $color-surface-container-high;
-	color: $color-on-surface-variant;
-	font-family: 'Inter', sans-serif;
-	font-size: 20rpx;
-	font-weight: 700;
-	letter-spacing: 0.1em;
-	padding: 8rpx 20rpx;
-	border-radius: 999rpx;
-}
+	.source-badge {
+		background-color: #e8e8ea;
+		color: #414753;
+		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-size: 10px;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		padding: 4px 10px;
+		border-radius: 999px;
+			flex-shrink: 0;
+	}
 
-.bookmark-btn {
-	padding: 12rpx;
-	margin-top: -12rpx;
-	margin-right: -12rpx;
-}
+	.bookmark-btn {
+		padding: 6px;
+		margin-top: -6px;
+		margin-right: -6px;
+			flex-shrink: 0;
+	}
 
-.icon-dim {
-	opacity: 0.2;
-}
+	.icon-dim {
+		opacity: 0.2;
+	}
 
-.paper-card:active .icon-dim {
-	opacity: 0.5;
-}
+	.paper-card:active .icon-dim {
+		opacity: 0.5;
+	}
 
-.card-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 40rpx;
-	font-weight: 700;
-	color: $color-on-surface;
-	line-height: 1.25;
-	margin-bottom: 16rpx;
-}
+	.card-title {
+		font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+		font-size: 18px;
+		font-weight: 700;
+		color: #1a1c1d;
+		line-height: 1.3;
+		margin-bottom: 8px;
+		word-break: break-word;
+		overflow-wrap: break-word;
+	}
 
-.card-authors {
-	font-family: 'Inter', sans-serif;
-	font-size: 28rpx;
-	font-weight: 500;
-	color: $color-on-secondary-container;
-	margin-bottom: 24rpx;
-}
+	.card-authors {
+		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-size: 14px;
+		font-weight: 500;
+		color: #626267;
+		margin-bottom: 12px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 
-.card-abstract {
-	font-family: 'Inter', sans-serif;
-	font-size: 28rpx;
-	color: $color-on-surface-variant;
-	line-height: 1.6;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-}
+	.card-abstract {
+		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-size: 14px;
+		color: #414753;
+		line-height: 1.6;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		word-break: break-word;
+	}
 
 /* ========== 加载状态 ========== */
 
-.loading-state {
-	display: flex;
+	.loading-state {
+		display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 128rpx;
-}
+		padding: 60px;
+	}
 
-.loading-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
-	color: $color-on-surface-variant;
-}
+	.loading-text {
+		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-size: 16px;
+		color: #414753;
+	}
 
 /* ========== 空状态 ========== */
 
-.empty-state {
-	display: flex;
-	flex-direction: column;
+	.empty-state {
+		display: flex;
+		flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 128rpx;
-}
+		padding: 60px;
+	}
 
-.empty-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
-	color: $color-on-surface-variant;
-	margin-top: 32rpx;
-}
+	.empty-text {
+		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-size: 16px;
+		color: #414753;
+		margin-top: 16px;
+	}
 
-/* ========== 底部导航 ========== */
+/* ========== 底部导航 - 仅图标 ========== */
 
-.bottom-nav {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	display: flex;
-	flex-direction: row;
+	.bottom-nav {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: row;
 	justify-content: center;
 	align-items: center;
-	gap: 32rpx;
-	padding: 24rpx 32rpx 48rpx;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
-	border-top-left-radius: 32rpx;
-	border-top-right-radius: 32rpx;
-	box-shadow: 0 -8rpx 80rpx rgba(26, 28, 29, 0.06);
-}
+		gap: 64px;
+		padding: 16px 16px 32px;
+		background-color: rgba(255, 255, 255, 0.85);
+		border-top: 1px solid rgba(0, 0, 0, 0.04);
+	}
 
-.nav-item {
-	display: flex;
-	flex-direction: column;
+	.nav-item {
+		display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 12rpx 48rpx;
-	border-radius: 24rpx;
-	transition: all 0.2s ease;
-}
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		transition: all 0.2s ease;
+	}
 
-.nav-item:active {
-	transform: scale(0.9);
-}
+	.nav-item:active {
+		transform: scale(0.9);
+	}
 
-.nav-item.active {
-	background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-label {
-	font-family: 'Inter', sans-serif;
-	font-size: 24rpx;
-	font-weight: 500;
-	color: #71717a;
-	margin-top: 8rpx;
-}
-
-.nav-item.active .nav-label {
-	color: #3b82f6;
-}
+	.nav-item.active {
+		background-color: rgba(59, 130, 246, 0.1);
+	}
 </style>

@@ -1,83 +1,106 @@
 /**
- * PaperLens 设计系统变量
- * 编辑部/杂志风格 - 基于 Material Design 3 色调
+ * PaperLens 设计系统变量 V2
+ * Cupertino Academic 风格 - Apple 极简学术风格
+ * 基于 Material Design 3 色调，采用 "No-Line" 规则
  */
 
 /* ========== 色彩系统 ========== */
 
-/* 主色系 - 深海军蓝 */
-$color-primary: #002045;
-$color-primary-container: #1a365d;
-$color-primary-fixed: #d6e3ff;
-$color-primary-fixed-dim: #adc7f7;
+/* 主色系 - Apple Blue */
+$color-primary: #004e9f;
+$color-primary-container: #0066cc;
+$color-primary-fixed: #d7e3ff;
+$color-primary-fixed-dim: #aac7ff;
 $color-on-primary: #ffffff;
-$color-on-primary-container: #86a0cd;
+$color-on-primary-container: #dfe8ff;
+$color-on-primary-fixed: #001b3e;
+$color-on-primary-fixed-variant: #00458e;
 
-/* 表面色系 */
-$color-bg: #f7fafc;
-$color-bg-grouped: #f1f4f6;
+/* 表面色系 - Tonal Layering */
+$color-bg: #F5F5F7;
+$color-bg-grouped: #F5F5F7;
 $color-bg-card: #ffffff;
-$color-bg-input: #f1f4f6;
-$color-surface: #f7fafc;
-$color-surface-container: #ebeef0;
-$color-surface-container-low: #f1f4f6;
+$color-bg-input: #e8e8ea;
+$color-surface: #F5F5F7;
+$color-surface-container: #eeeef0;
+$color-surface-container-low: #f3f3f5;
 $color-surface-container-lowest: #ffffff;
-$color-surface-container-high: #e5e9eb;
-$color-surface-container-highest: #e0e3e5;
-$color-surface-variant: #e0e3e5;
-$color-surface-dim: #d7dadc;
-$color-surface-bright: #f7fafc;
+$color-surface-container-high: #e8e8ea;
+$color-surface-container-highest: #e2e2e4;
+$color-surface-variant: #e2e2e4;
+$color-surface-dim: #d9dadc;
+$color-surface-bright: #F5F5F7;
+$color-surface-tint: #005cba;
 
-/* 文字色 */
-$color-text-primary: #181c1e;
-$color-text-secondary: #43474e;
-$color-text-tertiary: #74777f;
-$color-text-placeholder: #c4c6cf;
-$color-on-surface: #181c1e;
-$color-on-surface-variant: #43474e;
+/* 文字色 - 避免纯黑 */
+$color-text-primary: #1a1c1d;
+$color-text-secondary: #414753;
+$color-text-tertiary: #727784;
+$color-text-placeholder: #c1c6d5;
+$color-on-surface: #1a1c1d;
+$color-on-surface-variant: #414753;
+$color-on-background: #1a1c1d;
 
-/* 分割线 */
-$color-separator: #c4c6cf;
-$color-outline: #74777f;
-$color-outline-variant: #c4c6cf;
+/* 分割线 - Ghost Border (15% opacity) */
+$color-separator: rgba(193, 198, 213, 0.15);
+$color-outline: #727784;
+$color-outline-variant: #c1c6d5;
 
-/* 强调色系 - 绿色 */
-$color-tertiary-fixed: #9ff5c1;
-$color-tertiary-fixed-dim: #83d8a6;
-$color-on-tertiary-container: #5caf81;
-$color-on-tertiary-fixed: #002111;
+/* 强调色系 - Warm Orange */
+$color-tertiary: #883700;
+$color-tertiary-container: #af4900;
+$color-tertiary-fixed: #ffdbcb;
+$color-tertiary-fixed-dim: #ffb692;
+$color-on-tertiary: #ffffff;
+$color-on-tertiary-container: #ffe3d6;
+$color-on-tertiary-fixed: #341100;
+$color-on-tertiary-fixed-variant: #793000;
+
+/* 次色系 */
+$color-secondary: #5e5e63;
+$color-secondary-container: #e0dfe4;
+$color-secondary-fixed: #e3e2e7;
+$color-secondary-fixed-dim: #c7c6cb;
+$color-on-secondary: #ffffff;
+$color-on-secondary-container: #626267;
+$color-on-secondary-fixed: #1a1b1f;
+$color-on-secondary-fixed-variant: #46464b;
 
 /* 状态色 */
 $color-success: #34C759;
 $color-warning: #FF9500;
-$color-error: #FF3B30;
+$color-error: #ba1a1a;
+$color-error-container: #ffdad6;
+$color-on-error: #ffffff;
+$color-on-error-container: #93000a;
 
 /* 反色系 */
-$color-inverse-surface: #2d3133;
-$color-inverse-on-surface: #eef1f3;
-$color-inverse-primary: #adc7f7;
+$color-inverse-surface: #2f3132;
+$color-inverse-on-surface: #f0f0f2;
+$color-inverse-primary: #aac7ff;
 
 /* ========== 字体系统 ========== */
 
-/* 字体族 */
-$font-family-headline: 'Songti SC', 'STSong', 'Noto Serif SC', Georgia, serif;
-$font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-$font-family-label: $font-family-body;
+/* 字体族 - Manrope + Inter 双字体策略 */
+$font-family-headline: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-label: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-/* 字号 */
-$font-size-caption: 24rpx;   /* 12px */
+/* 字号 - Editorial Scale */
+$font-size-caption: 22rpx;   /* 11px */
 $font-size-footnote: 26rpx;  /* 13px */
-$font-size-subheadline: 30rpx; /* 15px */
+$font-size-subheadline: 28rpx; /* 14px */
 $font-size-callout: 32rpx;   /* 16px */
 $font-size-body: 34rpx;      /* 17px */
-$font-size-headline: 34rpx;  /* 17px */
-$font-size-headline-lg: 48rpx; /* 24px - 编辑部大标题 */
-$font-size-headline-xl: 60rpx; /* 30px - Hero 标题 */
+$font-size-headline: 36rpx;  /* 18px */
+$font-size-headline-lg: 44rpx; /* 22px */
+$font-size-headline-xl: 60rpx; /* 30px - Hero 大标题 */
 $font-size-title3: 40rpx;    /* 20px */
 $font-size-title2: 44rpx;    /* 22px */
 $font-size-title1: 56rpx;    /* 28px */
 $font-size-large-title: 68rpx; /* 34px */
 $font-size-label-xs: 20rpx;  /* 10px - 大写标签 */
+$font-size-display: 80rpx;   /* 40px - 特大展示标题 */
 
 /* 字重 */
 $font-weight-regular: 400;
@@ -86,8 +109,9 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 $font-weight-extrabold: 800;
 
-/* 行高 */
-$line-height-tight: 1.2;
+/* 行高 - 学术阅读需要呼吸空间 */
+$line-height-tight: 1.1;
+$line-height-snug: 1.2;
 $line-height-normal: 1.4;
 $line-height-relaxed: 1.6;
 $line-height-loose: 1.75;
@@ -107,23 +131,33 @@ $spacing-4: 32rpx;  /* 16px */
 $spacing-5: 40rpx;  /* 20px */
 $spacing-6: 48rpx;  /* 24px */
 $spacing-8: 64rpx;  /* 32px */
-$spacing-12: 96rpx; /* 48px - 论文卡片间距 */
+$spacing-10: 80rpx; /* 40px */
+$spacing-12: 96rpx; /* 48px */
 $spacing-16: 128rpx; /* 64px */
 
-/* ========== 圆角系统 ========== */
+/* ========== 圆角系统 - Organic & Approachable ========== */
 
-$radius-sm: 16rpx;   /* 8px */
-$radius-md: 24rpx;   /* 12px */
-$radius-lg: 32rpx;   /* 16px */
+$radius-sm: 12rpx;   /* 6px */
+$radius-md: 16rpx;   /* 8px */
+$radius-lg: 24rpx;   /* 12px */
 $radius-xl: 48rpx;   /* 24px */
-$radius-full: 999rpx; /* 圆形 */
+$radius-2xl: 64rpx;  /* 32px */
+$radius-full: 999rpx; /* 圆形/药丸形 */
 
-/* ========== 阴影系统 ========== */
+/* ========== 阴影系统 - Ambient Shadows ========== */
 
-$shadow-sm: 0 2rpx 8rpx rgba(0, 32, 69, 0.04);
-$shadow-md: 0 4rpx 16rpx rgba(0, 32, 69, 0.08);
-$shadow-lg: 0 8rpx 32rpx rgba(0, 32, 69, 0.12);
-$shadow-xl: 0 16rpx 48rpx rgba(0, 32, 69, 0.16);
+/* 使用 tinted shadow，非纯灰 */
+$shadow-ambient: 0 10rpx 80rpx rgba(26, 28, 29, 0.06);
+$shadow-ambient-lg: 0 16rpx 80rpx rgba(26, 28, 29, 0.08);
+$shadow-card: 0 16rpx 60rpx rgba(0, 0, 0, 0.04);
+$shadow-card-hover: 0 16rpx 80rpx rgba(0, 0, 0, 0.08);
+$shadow-nav: 0 -8rpx 80rpx rgba(26, 28, 29, 0.04);
+
+/* 兼容旧阴影变量 */
+$shadow-sm: 0 4rpx 16rpx rgba(26, 28, 29, 0.04);
+$shadow-md: 0 8rpx 32rpx rgba(26, 28, 29, 0.08);
+$shadow-lg: 0 16rpx 64rpx rgba(26, 28, 29, 0.12);
+$shadow-xl: 0 32rpx 96rpx rgba(26, 28, 29, 0.16);
 
 /* ========== 动画时长 ========== */
 
@@ -131,20 +165,26 @@ $duration-fast: 150ms;
 $duration-normal: 250ms;
 $duration-slow: 350ms;
 
+/* ========== Glassmorphism ========== */
+
+$glass-bg: rgba(255, 255, 255, 0.7);
+$glass-blur: 40px;
+$glass-border: rgba(255, 255, 255, 0.2);
+
 /* ========== uni-app 内置变量覆盖 ========== */
 
-$uni-color-primary: #002045;
+$uni-color-primary: #0066cc;
 $uni-color-success: #34C759;
 $uni-color-warning: #FF9500;
-$uni-color-error: #FF3B30;
+$uni-color-error: #ba1a1a;
 
-$uni-text-color: #181c1e;
+$uni-text-color: #1a1c1d;
 $uni-text-color-inverse: #ffffff;
-$uni-text-color-grey: #43474e;
-$uni-text-color-placeholder: #c4c6cf;
+$uni-text-color-grey: #414753;
+$uni-text-color-placeholder: #c1c6d5;
 
-$uni-bg-color: #f7fafc;
-$uni-bg-color-grey: #f1f4f6;
-$uni-bg-color-hover: #e5e9eb;
+$uni-bg-color: #F5F5F7;
+$uni-bg-color-grey: #F5F5F7;
+$uni-bg-color-hover: #e8e8ea;
 
-$uni-border-color: #c4c6cf;
+$uni-border-color: rgba(193, 198, 213, 0.15);

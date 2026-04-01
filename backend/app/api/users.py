@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from app.dependencies import DbSession, RequiredUserId
 from app.models.user import User
 from app.models.bookmark import Bookmark
+from app.models.reading_log import ReadingLog
 from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
@@ -63,12 +64,20 @@ async def get_stats(db: DbSession, user_id: RequiredUserId):
         )
     )
 
+    # 本周阅读数（查看论文详情次数）
+    week_read = await db.scalar(
+        select(func.count()).select_from(ReadingLog).where(
+            ReadingLog.user_id == user_id,
+            ReadingLog.viewed_at >= week_start,
+        )
+    )
+
     return {
         "code": 200,
         "msg": "success",
         "data": {
-            "weekRead": 0,
+            "weekRead": week_read or 0,
             "weekBookmarked": week_bookmarked or 0,
-            "weekSkipped": 0,
+            "weekSkipped": 0,  # 暂未实现跳过统计
         },
     }

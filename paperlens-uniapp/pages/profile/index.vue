@@ -1,31 +1,50 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航栏 -->
-		<view class="header">
-			<view class="header-inner">
-				<view class="icon-btn">
-					<MdIcon name="menu" :size="44" color="#3b82f6" />
+		<view class="header" :style="{ paddingTop: navBarTop + 'px' }">
+			<view class="header-inner" :style="{ height: navBarHeight + 'px' }">
+				<view class="header-left">
+					<view class="icon-btn">
+						<MdIcon name="menu" size="48" color="#3b82f6" />
+					</view>
 				</view>
 				<text class="brand-title">PaperLens</text>
-				<view class="icon-btn" @tap="goToSearch">
-					<MdIcon name="search" :size="44" color="#3b82f6" />
+				<view class="header-right">
+					<view class="icon-btn" @tap="goToSearch">
+						<MdIcon name="search" size="48" color="#3b82f6" />
+					</view>
 				</view>
 			</view>
 		</view>
 
 		<!-- 主内容区 -->
-		<view class="main-content">
+		<scroll-view class="main-content" :style="{ paddingTop: headerHeight + 'px' }" scroll-y="true">
 			<!-- 头像区域 -->
 			<view class="profile-section">
-				<view class="avatar-wrapper" @tap="changeAvatar">
+				<!-- 微信头像选择按钮 -->
+				<button
+					v-if="isLoggedIn"
+					class="avatar-btn"
+					open-type="chooseAvatar"
+					@chooseavatar="onChooseAvatar"
+				>
 					<image
-						v-if="isLoggedIn && userInfo.avatar"
+						v-if="userInfo.avatar"
 						class="avatar"
 						:src="userInfo.avatar"
 						mode="aspectFill"
 					/>
 					<view v-else class="avatar-placeholder">
-						<MdIcon name="person" :size="128" color="#c1c6d5" filled />
+						<MdIcon name="person" size="64" color="#c1c6d5" filled />
+					</view>
+					<view class="avatar-edit-hint">
+						<MdIcon name="edit" size="28" color="#ffffff" />
+					</view>
+				</button>
+				<!-- 未登录时点击登录 -->
+				<view v-else class="avatar-wrapper" @tap="handleLogin">
+					<view class="avatar-placeholder">
+						<MdIcon name="person" size="64" color="#c1c6d5" filled />
 					</view>
 				</view>
 				<text class="username">{{ displayName }}</text>
@@ -35,18 +54,18 @@
 			<view class="menu-card">
 				<view class="menu-item" @tap="goToBookmarks">
 					<view class="menu-left">
-						<MdIcon name="bookmark" :size="44" color="#414753" />
+						<MdIcon name="bookmark" size="48" color="#414753" />
 						<text class="menu-label">我的收藏</text>
 					</view>
-					<MdIcon name="chevron-right" :size="40" color="#c1c6d5" />
+					<MdIcon name="chevron-right" size="44" color="#c1c6d5" />
 				</view>
 				<view class="menu-divider"></view>
 				<view class="menu-item" @tap="goToSettings">
 					<view class="menu-left">
-						<MdIcon name="settings" :size="44" color="#414753" />
+						<MdIcon name="settings" size="48" color="#414753" />
 						<text class="menu-label">偏好设置</text>
 					</view>
-					<MdIcon name="chevron-right" :size="40" color="#c1c6d5" />
+					<MdIcon name="chevron-right" size="44" color="#c1c6d5" />
 				</view>
 			</view>
 
@@ -63,17 +82,15 @@
 					<text class="login-text">登录 / 注册</text>
 				</view>
 			</view>
-		</view>
+		</scroll-view>
 
-		<!-- 底部导航 -->
+		<!-- 底部导航 - 仅图标 -->
 		<view class="bottom-nav">
 			<view class="nav-item" @tap="switchTab('/pages/home/index')">
-				<MdIcon name="home" :size="40" color="#71717a" />
-				<text class="nav-label">首页</text>
+				<MdIcon name="home" size="52" color="#a1a1aa" />
 			</view>
 			<view class="nav-item active">
-				<MdIcon name="person" :size="40" color="#3b82f6" filled />
-				<text class="nav-label">个人</text>
+				<MdIcon name="person" size="52" color="#3b82f6" filled />
 			</view>
 		</view>
 	</view>
@@ -92,7 +109,10 @@ export default {
 	data() {
 		return {
 			isLoggedIn: false,
-			userInfo: {}
+			userInfo: {},
+			statusBarHeight: 20,
+				navBarTop: 20,
+				navBarHeight: 56
 		}
 	},
 
@@ -100,10 +120,31 @@ export default {
 		displayName() {
 			if (!this.isLoggedIn) return '未登录'
 			return this.userInfo.nickname || 'PaperLens Reader'
+		},
+		headerHeight() {
+			return this.navBarTop + this.navBarHeight + 16
 		}
 	},
 
 	onLoad() {
+		// 获取状态栏高度
+		const systemInfo = uni.getSystemInfoSync()
+		this.statusBarHeight = systemInfo.statusBarHeight || 20
+
+			// 获取微信胶囊按钮位置，确保导航栏不被遮挡
+			try {
+				const menuRect = uni.getMenuButtonBoundingClientRect()
+				if (menuRect) {
+					// 导航栏顶部位置 = 胶囊底部 + 间距
+					this.navBarTop = menuRect.bottom + 8
+					// 导航栏高度与胶囊对齐
+					this.navBarHeight = menuRect.height
+				}
+			} catch (e) {
+				// 非微信环境使用默认值
+				this.navBarTop = this.statusBarHeight + 44
+			}
+
 		userStore.init()
 		this.refreshState()
 	},
@@ -133,50 +174,46 @@ export default {
 			}
 		},
 
-		changeAvatar() {
-			if (!this.isLoggedIn) {
-				this.handleLogin()
-				return
-			}
-			uni.chooseImage({
-				count: 1,
-				sizeType: ['compressed'],
-				sourceType: ['album', 'camera'],
-				success: async (res) => {
-					const tempFilePath = res.tempFilePaths[0]
-					uni.showLoading({ title: '上传中...' })
-					try {
-						// 上传头像
-						const uploadRes = await new Promise((resolve, reject) => {
-							uni.uploadFile({
-								url: this.$config.baseUrl + '/api/v1/users/avatar',
-								filePath: tempFilePath,
-								name: 'avatar',
-								header: {
-									'Authorization': 'Bearer ' + userStore.getToken()
-								},
-								success: (res) => {
-									if (res.statusCode === 200) {
-										resolve(JSON.parse(res.data))
-									} else {
-										reject(new Error('上传失败'))
-									}
-								},
-								fail: reject
-							})
-						})
-						if (uploadRes.code === 200) {
-							this.userInfo.avatar = uploadRes.data.avatar
-							uni.showToast({ title: '头像更新成功', icon: 'success' })
-						}
-					} catch (e) {
-						console.error('上传头像失败', e)
-						uni.showToast({ title: '上传失败', icon: 'none' })
-					} finally {
-						uni.hideLoading()
-					}
+		// 微信头像选择回调
+		async onChooseAvatar(e) {
+			const tempAvatarPath = e.detail.avatarUrl
+			if (!tempAvatarPath) return
+
+			uni.showLoading({ title: '上传中...' })
+
+			try {
+				// 上传头像到服务器
+				const uploadRes = await new Promise((resolve, reject) => {
+					uni.uploadFile({
+						url: this.$config.baseUrl + '/api/v1/users/avatar',
+						filePath: tempAvatarPath,
+						name: 'avatar',
+						header: {
+							'Authorization': 'Bearer ' + userStore.getToken()
+						},
+						success: (res) => {
+							if (res.statusCode === 200) {
+								resolve(JSON.parse(res.data))
+							} else {
+								reject(new Error('上传失败'))
+							}
+						},
+						fail: reject
+					})
+				})
+
+				if (uploadRes.code === 200) {
+					this.userInfo.avatar = uploadRes.data.avatar
+					uni.showToast({ title: '头像已更新', icon: 'success' })
+				} else {
+					throw new Error(uploadRes.msg || '上传失败')
 				}
-			})
+			} catch (e) {
+				console.error('上传头像失败', e)
+				uni.showToast({ title: '上传失败', icon: 'none' })
+			} finally {
+				uni.hideLoading()
+			}
 		},
 
 		async handleLogin() {
@@ -237,12 +274,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
+/* ========== 页面基础 ========== */
 
 .page {
 	min-height: 100vh;
-	background-color: $color-bg;
-	padding-bottom: 140rpx;
+	background-color: #F5F5F7;
+	display: flex;
+	flex-direction: column;
+	overflow-x: hidden;
+	width: 100%;
 }
 
 /* ========== 顶部导航栏 ========== */
@@ -253,9 +293,8 @@ export default {
 	left: 0;
 	right: 0;
 	z-index: 100;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
+	background-color: rgba(255, 255, 255, 0.85);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .header-inner {
@@ -263,29 +302,45 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	height: 128rpx;
-	padding: 0 48rpx;
-	max-width: 768rpx;
+	height: 56px;
+	padding: 12px 16px 8px;
+	max-width: 600px;
 	margin: 0 auto;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.header-left,
+.header-right {
+	width: 48px;
+	display: flex;
+	align-items: center;
 }
 
 .icon-btn {
-	padding: 16rpx;
+	padding: 8px;
 }
 
 .brand-title {
-	font-family: 'Manrope', sans-serif;
-	font-size: 40rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 20px;
 	font-weight: 700;
 	color: #18181b;
+	letter-spacing: -0.02em;
+	text-align: center;
+	flex: 1;
 }
 
 /* ========== 主内容区 ========== */
 
 .main-content {
-	padding: 192rpx 48rpx 0;
-	max-width: 768rpx;
+	flex: 1;
+	padding: 0 16px 100px;
+	max-width: 600px;
 	margin: 0 auto;
+	width: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
 /* ========== 头像区域 ========== */
@@ -294,48 +349,92 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: 96rpx;
+	margin-bottom: 40px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.avatar-btn {
+	position: relative;
+	width: 120px;
+	height: 120px;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	overflow: visible;
+}
+
+.avatar-btn::after {
+	display: none;
 }
 
 .avatar-wrapper {
-	width: 256rpx;
-	height: 256rpx;
+	width: 120px;
+	height: 120px;
 	border-radius: 50%;
 	overflow: hidden;
-	margin-bottom: 48rpx;
-	background-color: $color-surface-container-high;
-	box-shadow: 0 0 0 32rpx $color-surface-container-lowest,
-	            0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+	background-color: #e8e8ea;
+	box-shadow: 0 0 0 8px #ffffff, 0 4px 16px rgba(0, 0, 0, 0.08);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .avatar {
-	width: 100%;
-	height: 100%;
+	width: 120px;
+	height: 120px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 8px #ffffff, 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-placeholder {
+	width: 120px;
+	height: 120px;
+	border-radius: 50%;
+	background-color: #e8e8ea;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 0 0 8px #ffffff, 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.avatar-edit-hint {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 36px;
+	height: 36px;
+	background-color: #0066cc;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
 }
 
 .username {
-	font-family: 'Manrope', sans-serif;
-	font-size: 48rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif;
+	font-size: 24px;
 	font-weight: 700;
-	color: $color-on-surface;
+	color: #1a1c1d;
 	letter-spacing: -0.02em;
+	margin-top: 16px;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	text-align: center;
 }
 
 /* ========== 菜单卡片 ========== */
 
 .menu-card {
-	background-color: $color-surface-container-lowest;
-	border-radius: 24rpx;
+	background-color: #ffffff;
+	border-radius: 12px;
 	overflow: hidden;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .menu-item {
@@ -343,11 +442,13 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	padding: 40rpx 48rpx;
+	padding: 20px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .menu-item:active {
-	background-color: $color-surface-container-low;
+	background-color: #f3f3f5;
 	transform: scale(0.99);
 }
 
@@ -355,58 +456,73 @@ export default {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 32rpx;
+	gap: 16px;
+	flex: 1;
+	min-width: 0;
 }
 
 .menu-label {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
 	font-weight: 500;
-	color: $color-on-surface;
+	color: #1a1c1d;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .menu-divider {
-	height: 2rpx;
-	margin: 0 48rpx;
-	background-color: $color-surface-container;
+	height: 1px;
+	margin: 0 20px;
+	background-color: #eeeef0;
 }
 
 /* ========== 退出登录 ========== */
 
 .logout-section {
-	margin-top: 64rpx;
+	margin-top: 24px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .logout-btn {
-	background-color: $color-surface-container-lowest;
-	border-radius: 24rpx;
-	padding: 32rpx;
+	background-color: #ffffff;
+	border-radius: 12px;
+	padding: 20px;
 	text-align: center;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .logout-btn:active {
 	transform: scale(0.95);
-	background-color: rgba($color-error, 0.05);
+	background-color: rgba(186, 26, 26, 0.05);
 }
 
 .logout-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
 	font-weight: 600;
-	color: $color-error;
+	color: #ba1a1a;
 }
 
 /* ========== 登录按钮 ========== */
 
 .login-section {
-	margin-top: 64rpx;
+	margin-top: 24px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .login-btn {
-	background-color: $color-primary-container;
-	border-radius: 24rpx;
-	padding: 32rpx;
+	background-color: #0066cc;
+	border-radius: 12px;
+	padding: 20px;
 	text-align: center;
+	box-shadow: 0 4px 24px rgba(0, 102, 204, 0.16);
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .login-btn:active {
@@ -414,13 +530,13 @@ export default {
 }
 
 .login-text {
-	font-family: 'Inter', sans-serif;
-	font-size: 34rpx;
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 16px;
 	font-weight: 600;
-	color: $color-on-primary;
+	color: #ffffff;
 }
 
-/* ========== 底部导航 ========== */
+/* ========== 底部导航 - 仅图标 ========== */
 
 .bottom-nav {
 	position: fixed;
@@ -431,22 +547,20 @@ export default {
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
-	gap: 32rpx;
-	padding: 32rpx 64rpx 64rpx;
-	background-color: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(40px);
-	-webkit-backdrop-filter: blur(40px);
-	border-top-left-radius: 48rpx;
-	border-top-right-radius: 48rpx;
-	box-shadow: 0 -8rpx 80rpx rgba(26, 28, 29, 0.04);
+	gap: 64px;
+	padding: 16px 16px 32px;
+	background-color: rgba(255, 255, 255, 0.85);
+	border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .nav-item {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
-	padding: 12rpx 48rpx;
-	border-radius: 32rpx;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	transition: all 0.2s ease;
 }
 
 .nav-item:active {
@@ -455,17 +569,5 @@ export default {
 
 .nav-item.active {
 	background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-label {
-	font-family: 'Inter', sans-serif;
-	font-size: 22rpx;
-	font-weight: 500;
-	color: #71717a;
-	margin-top: 8rpx;
-}
-
-.nav-item.active .nav-label {
-	color: #3b82f6;
 }
 </style>

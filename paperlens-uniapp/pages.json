@@ -21,6 +21,7 @@
 		{
 			"path": "pages/home/detail",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "论文详情",
 				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
@@ -38,6 +39,7 @@
 		{
 			"path": "pages/profile/bookmarks",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "收藏夹",
 				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
@@ -48,6 +50,7 @@
 		{
 			"path": "pages/profile/settings",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "设置",
 				"navigationBarBackgroundColor": "#f7fafc",
 				"navigationBarTextStyle": "black",
@@ -78,6 +81,23 @@
 		"navigationBarTitleText": "PaperLens",
 		"navigationBarBackgroundColor": "#f7fafc",
 		"backgroundColor": "#f7fafc"
+	},
+	"tabBar": {
+		"custom": true,
+		"color": "#43474e",
+		"selectedColor": "#002045",
+		"backgroundColor": "#f7fafc",
+		"borderStyle": "white",
+		"list": [
+			{
+				"pagePath": "pages/home/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/profile/index",
+				"text": "我的"
+			}
+		]
 	},
 	"uniIdRouter": {}
 }

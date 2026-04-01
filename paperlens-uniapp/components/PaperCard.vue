@@ -1,57 +1,33 @@
 <template>
 	<view class="paper-card" @tap="onTap">
-		<!-- 分类标签 -->
-		<view class="tags">
-			<view
-				v-for="(cat, index) in displayCategories"
-				:key="index"
-				:class="['tag', cat.isHighlight ? 'tag-tertiary' : 'tag-surface']"
-			>{{ cat.text }}</view>
+		<!-- 顶部：来源标签 + 收藏按钮 -->
+		<view class="card-top">
+			<view class="source-badge">{{ displaySource }}</view>
+			<view class="bookmark-btn" @tap.stop="onBookmark">
+				<text class="bookmark-icon" :class="{ bookmarked: isBookmarked }">bookmark</text>
+			</view>
 		</view>
 
 		<!-- 标题 -->
-		<view class="title">{{ paper.title }}</view>
+		<view class="card-title">{{ paper.title }}</view>
 
 		<!-- 作者 -->
-		<view class="authors">{{ authorText }}</view>
+		<view class="card-authors">{{ authorText }}</view>
 
 		<!-- 摘要预览 -->
-		<view class="abstract">{{ paper.abstract }}</view>
-
-		<!-- AI 摘要状态 -->
-		<view v-if="paper.summary_status" class="summary-status">
-			<text class="status-text">{{ statusText }}</text>
-		</view>
+		<view class="card-abstract">{{ paper.abstract }}</view>
 	</view>
 </template>
 
 <script>
-/**
- * PaperCard - 论文卡片组件
- * @description 编辑部风格的文章列表式展示
- */
-
 export default {
 	name: 'PaperCard',
 
 	props: {
-		/**
-		 * 论文数据
-		 */
 		paper: {
 			type: Object,
 			default: () => ({})
 		},
-		/**
-		 * 是否显示操作按钮（已废弃，保留兼容）
-		 */
-		showActions: {
-			type: Boolean,
-			default: false
-		},
-		/**
-		 * 是否已收藏（已废弃，保留兼容）
-		 */
 		isBookmarked: {
 			type: Boolean,
 			default: false
@@ -59,45 +35,31 @@ export default {
 	},
 
 	computed: {
-		/**
-		 * 显示的分类（最多2个，带高亮标记）
-		 */
-		displayCategories() {
-			if (!this.paper.categories) return []
-			const cats = this.paper.categories.slice(0, 2)
-			return cats.map((text, index) => ({
-				text,
-				isHighlight: index === 0 // 第一个标签用绿色高亮
-			}))
+		displaySource() {
+			if (this.paper.arxiv_id) {
+				return `ARXIV:${this.paper.arxiv_id}`
+			}
+			if (this.paper.categories && this.paper.categories.length > 0) {
+				return this.paper.categories[0].toUpperCase()
+			}
+			return 'PAPER'
 		},
 
-		/**
-		 * 作者文本
-		 */
 		authorText() {
 			if (!this.paper.authors || this.paper.authors.length === 0) return ''
 			const first = this.paper.authors[0]
 			const more = this.paper.authors.length > 1 ? ' 等' : ''
 			return `${first}${more}`
-		},
-
-		/**
-		 * 状态文本（轻量版）
-		 */
-		statusText() {
-			const statusMap = {
-				'done': 'AI摘要',
-				'processing': '生成中',
-				'pending': '待生成',
-				'failed': '生成失败'
-			}
-			return statusMap[this.paper.summary_status] || ''
 		}
 	},
 
 	methods: {
 		onTap() {
 			this.$emit('select', this.paper)
+		},
+
+		onBookmark() {
+			this.$emit('bookmark', this.paper)
 		}
 	}
 }
@@ -107,84 +69,99 @@ export default {
 @import '@/styles/variables.scss';
 
 .paper-card {
-	padding-bottom: $spacing-12;
-	border-bottom: 1rpx solid $color-separator;
-	opacity: 0.2;
+	background-color: $color-surface-container-lowest;
+	border-radius: 24rpx;
+	padding: 48rpx;
+	margin-bottom: 48rpx;
+	box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.04);
+	transition: all 0.3s ease;
 }
 
-.paper-card:last-child {
-	border-bottom: none;
+.paper-card:active {
+	box-shadow: 0 16rpx 80rpx rgba(0, 0, 0, 0.08);
+	transform: scale(0.99);
 }
 
-.tags {
+/* ========== 顶部区域 ========== */
+
+.card-top {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
-	gap: $spacing-2;
-	margin-bottom: $spacing-3;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 24rpx;
 }
 
-.tag {
-	display: inline-flex;
-	align-items: center;
-	height: 36rpx;
-	padding: 0 $spacing-2;
-	border-radius: 8rpx;
-	font-size: $font-size-label-xs;
-	font-weight: $font-weight-extrabold;
-	letter-spacing: $letter-spacing-widest;
-	text-transform: uppercase;
-}
-
-.tag-tertiary {
-	background-color: $color-tertiary-fixed;
-	color: $color-on-tertiary-container;
-}
-
-.tag-surface {
-	background-color: $color-surface-variant;
+.source-badge {
+	background-color: $color-surface-container-high;
 	color: $color-on-surface-variant;
+	font-family: 'Inter', sans-serif;
+	font-size: 20rpx;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	padding: 8rpx 20rpx;
+	border-radius: 999rpx;
 }
 
-.title {
-	font-family: $font-family-headline;
-	font-size: $font-size-headline-lg;
-	font-weight: $font-weight-bold;
-	color: $color-primary;
-	line-height: $line-height-normal;
-	margin-bottom: $spacing-2;
+.bookmark-btn {
+	padding: 12rpx;
+	margin-top: -12rpx;
+	margin-right: -12rpx;
 }
 
-.authors {
-	font-family: $font-family-body;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-semibold;
-	color: $color-text-secondary;
-	margin-bottom: $spacing-3;
+.bookmark-icon {
+	font-family: 'Material Symbols Outlined';
+	font-size: 48rpx;
+	color: $color-primary-container;
+	opacity: 0.2;
+	transition: opacity 0.2s ease;
 }
 
-.abstract {
-	font-family: $font-family-headline;
-	font-style: italic;
-	font-size: $font-size-subheadline;
-	color: $color-text-secondary;
-	line-height: $line-height-relaxed;
+.paper-card:active .bookmark-icon:not(.bookmarked) {
+	opacity: 0.5;
+}
+
+.bookmark-icon.bookmarked {
+	opacity: 1;
+}
+
+/* ========== 标题 ========== */
+
+.card-title {
+	font-family: 'Manrope', sans-serif;
+	font-size: 40rpx;
+	font-weight: 700;
+	color: $color-on-surface;
+	line-height: 1.25;
+	margin-bottom: 16rpx;
+	transition: color 0.2s ease;
+}
+
+.paper-card:active .card-title {
+	color: $color-primary-container;
+}
+
+/* ========== 作者 ========== */
+
+.card-authors {
+	font-family: 'Inter', sans-serif;
+	font-size: 28rpx;
+	font-weight: 500;
+	color: $color-on-secondary-container;
+	margin-bottom: 24rpx;
+}
+
+/* ========== 摘要预览 ========== */
+
+.card-abstract {
+	font-family: 'Inter', sans-serif;
+	font-size: 28rpx;
+	color: $color-on-surface-variant;
+	line-height: 1.6;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
-}
-
-.summary-status {
-	margin-top: $spacing-2;
-}
-
-.status-text {
-	font-family: $font-family-label;
-	font-size: $font-size-label-xs;
-	font-weight: $font-weight-bold;
-	color: $color-tertiary-fixed-dim;
-	letter-spacing: $letter-spacing-wide;
 }
 </style>

@@ -1,85 +1,104 @@
 <template>
 	<view class="page">
+		<!-- 顶部导航栏 -->
+		<view class="header">
+			<view class="header-inner">
+				<view class="header-left">
+					<view class="icon-btn" @tap="goBack">
+						<MdIcon name="arrow-back" :size="44" color="#1a1c1d" />
+					</view>
+					<text class="brand-title">PaperLens</text>
+				</view>
+				<view class="header-right">
+					<view class="icon-btn" @tap="onBookmark">
+						<MdIcon
+							name="bookmark"
+							:size="44"
+							:color="isBookmarked ? '#0066cc' : '#1a1c1d'"
+							:filled="isBookmarked"
+						/>
+					</view>
+					<view class="icon-btn" @tap="onShare">
+						<MdIcon name="share" :size="44" color="#1a1c1d" />
+					</view>
+				</view>
+			</view>
+		</view>
+
 		<!-- 加载状态 -->
-		<view v-if="loading" class="loading">
-			<text>加载中...</text>
+		<view v-if="loading" class="loading-state">
+			<text class="loading-text">加载中...</text>
 		</view>
 
 		<!-- 论文详情 -->
-		<view v-else-if="paper" class="content">
+		<view v-else-if="paper" class="main-content">
 			<!-- 标题 -->
-			<view class="title">{{ paper.title }}</view>
+			<view class="paper-title">{{ paper.title }}</view>
 
-			<!-- 作者 -->
-			<view class="authors">{{ authorText }}</view>
+			<!-- 作者 + 年份 -->
+			<view class="meta-row">
+				<text class="authors-text">{{ authorText }}</text>
+				<view class="dot-sep"></view>
+				<view class="year-badge">{{ displayYear }}</view>
+			</view>
 
-			<!-- 分类标签 -->
-			<view class="tags">
-				<view
-					v-for="(cat, index) in paper.categories"
-					:key="index"
-					class="tag"
-				>{{ cat }}</view>
+			<!-- 关键词 -->
+			<view class="keywords-section">
+				<text class="section-label">关键词</text>
+				<view class="keywords-list">
+					<view
+						v-for="(kw, index) in keywords"
+						:key="index"
+						class="keyword-tag"
+					>{{ kw }}</view>
+				</view>
 			</view>
 
 			<!-- AI 摘要 -->
-			<view class="section">
-				<view class="section-header" @tap="toggleSummary">
-					<text class="section-title">AI 结构化摘要</text>
-					<text class="section-toggle">{{ summaryExpanded ? '收起' : '展开' }}</text>
+			<view class="ai-section">
+				<view class="ai-header">
+					<MdIcon name="auto-awesome" :size="36" color="#0066cc" filled />
+					<text class="ai-title">AI 摘要</text>
 				</view>
-
-				<view v-show="summaryExpanded">
-					<view v-if="paper.summary_status === 'done'" class="summary-content">
-						<view class="summary-item">
-							<view class="summary-label">What（问题与方案）</view>
-							<view class="summary-text">{{ paper.summary_what }}</view>
+				<view v-if="paper.summary_status === 'done'" class="ai-content">
+					<text class="ai-paragraph">{{ paper.summary_what }}</text>
+					<view class="ai-list">
+						<view class="ai-list-item">
+							<text class="bullet">•</text>
+							<text class="list-text">{{ paper.summary_how }}</text>
 						</view>
-						<view class="summary-item">
-							<view class="summary-label">How（技术路径）</view>
-							<view class="summary-text">{{ paper.summary_how }}</view>
+						<view class="ai-list-item">
+							<text class="bullet">•</text>
+							<text class="list-text">{{ paper.summary_why }}</text>
 						</view>
-						<view class="summary-item">
-							<view class="summary-label">Why（贡献与意义）</view>
-							<view class="summary-text">{{ paper.summary_why }}</view>
-						</view>
-						<view class="disclaimer">内容由 AI 生成，请以原文为准</view>
 					</view>
-
-					<view v-else-if="paper.summary_status === 'processing'" class="summary-status">
-						<text>AI 摘要生成中...</text>
-					</view>
-
-					<view v-else class="summary-status">
-						<text>暂无 AI 摘要</text>
-					</view>
+				</view>
+				<view v-else-if="paper.summary_status === 'processing'" class="ai-status">
+					<text>AI 摘要生成中...</text>
+				</view>
+				<view v-else class="ai-status">
+					<text>暂无 AI 摘要</text>
 				</view>
 			</view>
 
 			<!-- 原文摘要 -->
-			<view class="section">
-				<view class="section-header" @tap="toggleAbstract">
-					<text class="section-title">原文摘要</text>
-					<text class="section-toggle">{{ abstractExpanded ? '收起' : '展开' }}</text>
-				</view>
-				<view v-show="abstractExpanded" class="abstract-text">
-					{{ paper.abstract }}
+			<view class="abstract-section">
+				<text class="section-label">原文摘要</text>
+				<view class="abstract-card">
+					<text class="abstract-text">{{ paper.abstract }}</text>
 				</view>
 			</view>
 		</view>
 
-		<!-- 底部操作栏 -->
-		<view v-if="paper" class="bottom-bar">
-			<view class="action-btn" @tap="onBookmark">
-				<text class="icon">{{ isBookmarked ? '★' : '☆' }}</text>
-				<text class="label">{{ isBookmarked ? '已收藏' : '收藏' }}</text>
+		<!-- 底部导航 -->
+		<view class="bottom-nav">
+			<view class="nav-item active">
+				<MdIcon name="home" :size="40" color="#3b82f6" filled />
+				<text class="nav-label">首页</text>
 			</view>
-			<view class="action-btn" @tap="onShare">
-				<text class="icon">↗</text>
-				<text class="label">分享</text>
-			</view>
-			<view class="action-btn primary" @tap="openPdf">
-				<text class="label">打开原文</text>
+			<view class="nav-item" @tap="switchTab('/pages/profile/index')">
+				<MdIcon name="person" :size="40" color="#71717a" />
+				<text class="nav-label">个人</text>
 			</view>
 		</view>
 	</view>
@@ -88,19 +107,17 @@
 <script>
 import { usePapersStore } from '@/stores/papers.js'
 import { useBookmarksStore } from '@/stores/bookmarks.js'
+import MdIcon from '@/components/MdIcon.vue'
 
 export default {
+	components: {
+		MdIcon
+	},
+
 	setup() {
 		const papersStore = usePapersStore()
 		const bookmarksStore = useBookmarksStore()
 		return { papersStore, bookmarksStore }
-	},
-
-	data() {
-		return {
-			summaryExpanded: true,
-			abstractExpanded: false
-		}
 	},
 
 	computed: {
@@ -113,6 +130,14 @@ export default {
 		authorText() {
 			if (!this.paper || !this.paper.authors) return ''
 			return this.paper.authors.join(', ')
+		},
+		displayYear() {
+			if (!this.paper || !this.paper.published_at) return ''
+			return new Date(this.paper.published_at).getFullYear()
+		},
+		keywords() {
+			if (!this.paper || !this.paper.categories) return []
+			return this.paper.categories.slice(0, 5)
 		},
 		isBookmarked() {
 			if (!this.paper) return false
@@ -132,17 +157,13 @@ export default {
 	},
 
 	methods: {
-		toggleSummary() {
-			this.summaryExpanded = !this.summaryExpanded
-		},
-
-		toggleAbstract() {
-			this.abstractExpanded = !this.abstractExpanded
+		goBack() {
+			uni.navigateBack()
 		},
 
 		async onBookmark() {
 			if (!this.paper) return
-			const res = await this.bookmarksStore.toggleBookmark(this.paper.id)
+			await this.bookmarksStore.toggleBookmark(this.paper.id)
 			uni.showToast({
 				title: this.isBookmarked ? '已取消收藏' : '已收藏',
 				icon: 'success'
@@ -159,14 +180,8 @@ export default {
 			})
 		},
 
-		openPdf() {
-			if (!this.paper || !this.paper.pdf_url) return
-			uni.setClipboardData({
-				data: this.paper.pdf_url,
-				success: () => {
-					uni.showToast({ title: 'PDF 链接已复制', icon: 'success' })
-				}
-			})
+		switchTab(url) {
+			uni.switchTab({ url })
 		}
 	}
 }
@@ -177,174 +192,289 @@ export default {
 
 .page {
 	min-height: 100vh;
-	background-color: $color-bg-grouped;
-	padding-bottom: 120rpx;
+	background-color: $color-bg;
 }
 
-.content {
-	padding: $spacing-4;
+/* ========== 顶部导航栏 ========== */
+
+.header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background-color: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px);
 }
 
-.loading {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 60vh;
-	color: $color-text-secondary;
-	font-size: $font-size-body;
-}
-
-.title {
-	font-size: $font-size-title2;
-	font-weight: $font-weight-bold;
-	color: $color-text-primary;
-	line-height: $line-height-normal;
-	margin-bottom: $spacing-3;
-}
-
-.authors {
-	font-size: $font-size-subheadline;
-	color: $color-text-secondary;
-	margin-bottom: $spacing-3;
-}
-
-.tags {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	margin-bottom: $spacing-4;
-}
-
-.tag {
-	display: inline-flex;
-	align-items: center;
-	height: 48rpx;
-	padding: 0 $spacing-3;
-	background-color: $color-primary-light;
-	color: $color-primary;
-	border-radius: 12rpx;
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-medium;
-	margin-right: $spacing-2;
-}
-
-.section {
-	background-color: $color-bg-card;
-	border-radius: $radius-md;
-	padding: $spacing-4;
-	margin-bottom: $spacing-4;
-}
-
-.section-header {
+.header-inner {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
+	height: 128rpx;
+	padding: 0 48rpx;
+	max-width: 1280rpx;
+	margin: 0 auto;
 }
 
-.section-title {
-	font-size: $font-size-headline;
-	font-weight: $font-weight-semibold;
-	color: $color-text-primary;
+.header-left,
+.header-right {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16rpx;
 }
 
-.section-toggle {
-	font-size: $font-size-subheadline;
-	color: $color-primary;
+.icon-btn {
+	padding: 16rpx;
 }
 
-.summary-content {
-	margin-top: $spacing-4;
+.brand-title {
+	font-family: 'Manrope', sans-serif;
+	font-size: 40rpx;
+	font-weight: 700;
+	color: #18181b;
 }
 
-.summary-item {
-	margin-bottom: $spacing-4;
+/* ========== 主内容区 ========== */
+
+.main-content {
+	padding: 192rpx 48rpx 200rpx;
+	max-width: 1280rpx;
+	margin: 0 auto;
 }
 
-.summary-item:last-child {
-	margin-bottom: 0;
+.loading-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 80vh;
 }
 
-.summary-label {
-	font-size: $font-size-footnote;
-	font-weight: $font-weight-semibold;
-	color: $color-primary;
-	margin-bottom: $spacing-2;
+.loading-text {
+	font-family: 'Inter', sans-serif;
+	font-size: 34rpx;
+	color: $color-on-surface-variant;
 }
 
-.summary-text {
-	font-size: $font-size-body;
-	color: $color-text-secondary;
-	line-height: $line-height-relaxed;
+/* ========== 标题 - 4xl/5xl ========== */
+
+.paper-title {
+	font-family: 'Manrope', sans-serif;
+	font-size: 80rpx;
+	font-weight: 800;
+	color: $color-on-surface;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+	margin-bottom: 32rpx;
 }
 
-.disclaimer {
-	font-size: $font-size-caption;
-	color: $color-text-tertiary;
-	margin-top: $spacing-4;
-	padding-top: $spacing-3;
-	border-top: 1rpx solid $color-separator;
+/* ========== 作者 + 年份 ========== */
+
+.meta-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 24rpx;
+	margin-bottom: 64rpx;
 }
 
-.summary-status {
-	margin-top: $spacing-4;
-	color: $color-text-tertiary;
-	font-size: $font-size-body;
+.authors-text {
+	font-family: 'Inter', sans-serif;
+	font-size: 36rpx;
+	font-weight: 500;
+	color: $color-on-surface-variant;
+}
+
+.dot-sep {
+	width: 16rpx;
+	height: 16rpx;
+	border-radius: 50%;
+	background-color: $color-surface-variant;
+}
+
+.year-badge {
+	background-color: $color-surface-container-high;
+	color: $color-on-surface-variant;
+	font-family: 'Inter', sans-serif;
+	font-size: 26rpx;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	padding: 12rpx 24rpx;
+	border-radius: 999rpx;
+}
+
+/* ========== 关键词 ========== */
+
+.keywords-section {
+	margin-bottom: 64rpx;
+}
+
+.section-label {
+	font-family: 'Manrope', sans-serif;
+	font-size: 26rpx;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: rgba($color-on-surface-variant, 0.7);
+	margin-bottom: 24rpx;
+	display: block;
+}
+
+.keywords-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 16rpx;
+}
+
+.keyword-tag {
+	background-color: $color-surface-container-lowest;
+	color: $color-on-surface;
+	font-family: 'Inter', sans-serif;
+	font-size: 28rpx;
+	font-weight: 500;
+	padding: 20rpx 32rpx;
+	border-radius: 999rpx;
+	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+/* ========== AI 摘要 ========== */
+
+.ai-section {
+	background-color: rgba($color-primary-container, 0.05);
+	border: 2rpx solid rgba($color-primary-container, 0.1);
+	border-radius: 48rpx;
+	padding: 64rpx;
+	margin-bottom: 64rpx;
+}
+
+.ai-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16rpx;
+	margin-bottom: 32rpx;
+}
+
+.ai-title {
+	font-family: 'Manrope', sans-serif;
+	font-size: 36rpx;
+	font-weight: 700;
+	color: $color-primary-container;
+}
+
+.ai-content {
+	// 内容
+}
+
+.ai-paragraph {
+	font-family: 'Inter', sans-serif;
+	font-size: 36rpx;
+	font-weight: 500;
+	color: $color-on-surface;
+	line-height: 1.6;
+	margin-bottom: 32rpx;
+}
+
+.ai-list {
+	display: flex;
+	flex-direction: column;
+	gap: 24rpx;
+}
+
+.ai-list-item {
+	display: flex;
+	flex-direction: row;
+	gap: 24rpx;
+}
+
+.bullet {
+	font-size: 32rpx;
+	color: $color-primary-container;
+}
+
+.list-text {
+	font-family: 'Inter', sans-serif;
+	font-size: 36rpx;
+	font-weight: 500;
+	color: $color-on-surface;
+	line-height: 1.6;
+}
+
+.ai-status {
+	font-family: 'Inter', sans-serif;
+	font-size: 34rpx;
+	color: $color-on-surface-variant;
 	text-align: center;
-	padding: $spacing-4;
+	padding: 32rpx;
+}
+
+/* ========== 原文摘要 ========== */
+
+.abstract-section {
+	margin-bottom: 64rpx;
+}
+
+.abstract-card {
+	background-color: $color-surface-container-lowest;
+	border-radius: 48rpx;
+	padding: 64rpx;
 }
 
 .abstract-text {
-	margin-top: $spacing-4;
-	font-size: $font-size-body;
-	color: $color-text-secondary;
-	line-height: $line-height-relaxed;
+	font-family: 'Inter', sans-serif;
+	font-size: 36rpx;
+	color: $color-on-surface;
+	line-height: 1.6;
 }
 
-.bottom-bar {
+/* ========== 底部导航 ========== */
+
+.bottom-nav {
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	display: flex;
 	flex-direction: row;
+	justify-content: center;
 	align-items: center;
-	height: 112rpx;
-	background-color: $color-bg;
-	border-top: 1rpx solid $color-separator;
-	padding: 0 $spacing-4;
-	padding-bottom: env(safe-area-inset-bottom);
+	gap: 32rpx;
+	padding: 24rpx 32rpx 64rpx;
+	background-color: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px);
+	border-top-left-radius: 32rpx;
+	border-top-right-radius: 32rpx;
+	box-shadow: 0 -8rpx 80rpx rgba(26, 28, 29, 0.06);
 }
 
-.action-btn {
+.nav-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 0 $spacing-4;
+	padding: 12rpx 48rpx;
+	border-radius: 24rpx;
+	transition: all 0.2s ease;
 }
 
-.action-btn .icon {
-	font-size: 40rpx;
-	margin-bottom: 4rpx;
+.nav-item.active {
+	background-color: rgba(59, 130, 246, 0.1);
 }
 
-.action-btn .label {
-	font-size: $font-size-caption;
-	color: $color-text-secondary;
+.nav-label {
+	font-family: 'Inter', sans-serif;
+	font-size: 24rpx;
+	font-weight: 500;
+	color: #71717a;
+	margin-top: 8rpx;
 }
 
-.action-btn.primary {
-	flex: 1;
-	margin-left: auto;
-	background-color: $color-primary;
-	border-radius: $radius-sm;
-	height: 72rpx;
-}
-
-.action-btn.primary .label {
-	color: #FFFFFF;
-	font-size: $font-size-body;
-	font-weight: $font-weight-semibold;
+.nav-item.active .nav-label {
+	color: #3b82f6;
 }
 </style>

@@ -5,12 +5,12 @@
 			<view class="header-inner">
 				<view class="header-left">
 					<view class="icon-btn">
-						<text class="material-icon">menu</text>
+						<MdIcon name="menu" :size="44" color="#71717a" />
 					</view>
 					<text class="brand-title">PaperLens</text>
 				</view>
 				<view class="icon-btn" @tap="goToSearch">
-					<text class="material-icon">search</text>
+					<MdIcon name="search" :size="44" color="#71717a" />
 				</view>
 			</view>
 		</view>
@@ -37,7 +37,13 @@
 					<view class="card-top">
 						<view class="source-badge">{{ formatSource(paper) }}</view>
 						<view class="bookmark-btn" @tap.stop="onBookmark(paper)">
-							<text class="bookmark-icon" :class="{ bookmarked: isBookmarked(paper.id) }">bookmark</text>
+							<MdIcon
+								name="bookmark"
+								:size="48"
+								:color="isBookmarked(paper.id) ? '#0066cc' : '#0066cc'"
+								:filled="isBookmarked(paper.id)"
+								:class="{ 'icon-dim': !isBookmarked(paper.id) }"
+							/>
 						</view>
 					</view>
 					<view class="card-title">{{ paper.title }}</view>
@@ -47,7 +53,7 @@
 
 				<!-- 空状态 -->
 				<view v-if="!loading && papers.length === 0" class="empty-state">
-					<text class="empty-icon">description</text>
+					<MdIcon name="description" :size="128" color="#c1c6d5" />
 					<text class="empty-text">暂无论文</text>
 				</view>
 			</view>
@@ -56,11 +62,11 @@
 		<!-- 底部导航 -->
 		<view class="bottom-nav">
 			<view class="nav-item active">
-				<text class="nav-icon filled">home</text>
+				<MdIcon name="home" :size="40" color="#3b82f6" filled />
 				<text class="nav-label">首页</text>
 			</view>
 			<view class="nav-item" @tap="switchTab('/pages/profile/index')">
-				<text class="nav-icon">person</text>
+				<MdIcon name="person" :size="40" color="#71717a" />
 				<text class="nav-label">个人</text>
 			</view>
 		</view>
@@ -70,8 +76,13 @@
 <script>
 import { usePapersStore } from '@/stores/papers.js'
 import { useBookmarksStore } from '@/stores/bookmarks.js'
+import MdIcon from '@/components/MdIcon.vue'
 
 export default {
+	components: {
+		MdIcon
+	},
+
 	setup() {
 		const papersStore = usePapersStore()
 		const bookmarksStore = useBookmarksStore()
@@ -186,12 +197,6 @@ export default {
 	padding: 16rpx;
 }
 
-.material-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 44rpx;
-	color: #71717a;
-}
-
 .brand-title {
 	font-family: 'Manrope', sans-serif;
 	font-size: 40rpx;
@@ -263,20 +268,12 @@ export default {
 	margin-right: -12rpx;
 }
 
-.bookmark-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 48rpx;
-	color: $color-primary-container;
+.icon-dim {
 	opacity: 0.2;
-	transition: opacity 0.2s ease;
 }
 
-.paper-card:active .bookmark-icon:not(.bookmarked) {
+.paper-card:active .icon-dim {
 	opacity: 0.5;
-}
-
-.bookmark-icon.bookmarked {
-	opacity: 1;
 }
 
 .card-title {
@@ -333,17 +330,11 @@ export default {
 	padding: 128rpx;
 }
 
-.empty-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 128rpx;
-	color: $color-outline-variant;
-	margin-bottom: 32rpx;
-}
-
 .empty-text {
 	font-family: 'Inter', sans-serif;
 	font-size: 34rpx;
 	color: $color-on-surface-variant;
+	margin-top: 32rpx;
 }
 
 /* ========== 底部导航 ========== */
@@ -383,21 +374,6 @@ export default {
 
 .nav-item.active {
 	background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 40rpx;
-	color: #71717a;
-}
-
-.nav-icon.filled {
-	font-variation-settings: 'FILL' 1;
-	color: #3b82f6;
-}
-
-.nav-item.active .nav-icon {
-	color: #3b82f6;
 }
 
 .nav-label {

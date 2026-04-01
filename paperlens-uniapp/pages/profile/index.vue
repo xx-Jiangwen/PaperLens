@@ -4,11 +4,11 @@
 		<view class="header">
 			<view class="header-inner">
 				<view class="icon-btn">
-					<text class="material-icon menu-icon">menu</text>
+					<MdIcon name="menu" :size="44" color="#3b82f6" />
 				</view>
 				<text class="brand-title">PaperLens</text>
 				<view class="icon-btn" @tap="goToSearch">
-					<text class="material-icon search-icon">search</text>
+					<MdIcon name="search" :size="44" color="#3b82f6" />
 				</view>
 			</view>
 		</view>
@@ -17,7 +17,7 @@
 		<view class="main-content">
 			<!-- 头像区域 -->
 			<view class="profile-section">
-				<view class="avatar-wrapper">
+				<view class="avatar-wrapper" @tap="changeAvatar">
 					<image
 						v-if="isLoggedIn && userInfo.avatar"
 						class="avatar"
@@ -25,7 +25,7 @@
 						mode="aspectFill"
 					/>
 					<view v-else class="avatar-placeholder">
-						<text class="avatar-icon">person</text>
+						<MdIcon name="person" :size="128" color="#c1c6d5" filled />
 					</view>
 				</view>
 				<text class="username">{{ displayName }}</text>
@@ -35,18 +35,18 @@
 			<view class="menu-card">
 				<view class="menu-item" @tap="goToBookmarks">
 					<view class="menu-left">
-						<text class="menu-icon">bookmark</text>
+						<MdIcon name="bookmark" :size="44" color="#414753" />
 						<text class="menu-label">我的收藏</text>
 					</view>
-					<text class="menu-arrow">chevron_right</text>
+					<MdIcon name="chevron-right" :size="40" color="#c1c6d5" />
 				</view>
 				<view class="menu-divider"></view>
 				<view class="menu-item" @tap="goToSettings">
 					<view class="menu-left">
-						<text class="menu-icon">settings</text>
+						<MdIcon name="settings" :size="44" color="#414753" />
 						<text class="menu-label">偏好设置</text>
 					</view>
-					<text class="menu-arrow">chevron_right</text>
+					<MdIcon name="chevron-right" :size="40" color="#c1c6d5" />
 				</view>
 			</view>
 
@@ -68,11 +68,11 @@
 		<!-- 底部导航 -->
 		<view class="bottom-nav">
 			<view class="nav-item" @tap="switchTab('/pages/home/index')">
-				<text class="nav-icon">home</text>
+				<MdIcon name="home" :size="40" color="#71717a" />
 				<text class="nav-label">首页</text>
 			</view>
 			<view class="nav-item active">
-				<text class="nav-icon filled">person</text>
+				<MdIcon name="person" :size="40" color="#3b82f6" filled />
 				<text class="nav-label">个人</text>
 			</view>
 		</view>
@@ -81,9 +81,14 @@
 
 <script>
 import userStore from '@/stores/user.js'
-import { getUserInfo } from '@/api/user.js'
+import { getUserInfo, updateUserInfo } from '@/api/user.js'
+import MdIcon from '@/components/MdIcon.vue'
 
 export default {
+	components: {
+		MdIcon
+	},
+
 	data() {
 		return {
 			isLoggedIn: false,
@@ -126,6 +131,52 @@ export default {
 			} catch (e) {
 				console.error('加载用户信息失败', e)
 			}
+		},
+
+		changeAvatar() {
+			if (!this.isLoggedIn) {
+				this.handleLogin()
+				return
+			}
+			uni.chooseImage({
+				count: 1,
+				sizeType: ['compressed'],
+				sourceType: ['album', 'camera'],
+				success: async (res) => {
+					const tempFilePath = res.tempFilePaths[0]
+					uni.showLoading({ title: '上传中...' })
+					try {
+						// 上传头像
+						const uploadRes = await new Promise((resolve, reject) => {
+							uni.uploadFile({
+								url: this.$config.baseUrl + '/api/v1/users/avatar',
+								filePath: tempFilePath,
+								name: 'avatar',
+								header: {
+									'Authorization': 'Bearer ' + userStore.getToken()
+								},
+								success: (res) => {
+									if (res.statusCode === 200) {
+										resolve(JSON.parse(res.data))
+									} else {
+										reject(new Error('上传失败'))
+									}
+								},
+								fail: reject
+							})
+						})
+						if (uploadRes.code === 200) {
+							this.userInfo.avatar = uploadRes.data.avatar
+							uni.showToast({ title: '头像更新成功', icon: 'success' })
+						}
+					} catch (e) {
+						console.error('上传头像失败', e)
+						uni.showToast({ title: '上传失败', icon: 'none' })
+					} finally {
+						uni.hideLoading()
+					}
+				}
+			})
 		},
 
 		async handleLogin() {
@@ -222,16 +273,6 @@ export default {
 	padding: 16rpx;
 }
 
-.material-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 44rpx;
-}
-
-.menu-icon,
-.search-icon {
-	color: #3b82f6;
-}
-
 .brand-title {
 	font-family: 'Manrope', sans-serif;
 	font-size: 40rpx;
@@ -265,6 +306,9 @@ export default {
 	background-color: $color-surface-container-high;
 	box-shadow: 0 0 0 32rpx $color-surface-container-lowest,
 	            0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .avatar {
@@ -273,18 +317,9 @@ export default {
 }
 
 .avatar-placeholder {
-	width: 100%;
-	height: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: $color-surface-container-high;
-}
-
-.avatar-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 128rpx;
-	color: $color-outline-variant;
 }
 
 .username {
@@ -323,23 +358,11 @@ export default {
 	gap: 32rpx;
 }
 
-.menu-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 44rpx;
-	color: $color-on-surface-variant;
-}
-
 .menu-label {
 	font-family: 'Inter', sans-serif;
 	font-size: 34rpx;
 	font-weight: 500;
 	color: $color-on-surface;
-}
-
-.menu-arrow {
-	font-family: 'Material Symbols Outlined';
-	font-size: 40rpx;
-	color: $color-outline-variant;
 }
 
 .menu-divider {
@@ -432,20 +455,6 @@ export default {
 
 .nav-item.active {
 	background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-icon {
-	font-family: 'Material Symbols Outlined';
-	font-size: 40rpx;
-	color: #71717a;
-}
-
-.nav-icon.filled {
-	font-variation-settings: 'FILL' 1;
-}
-
-.nav-item.active .nav-icon {
-	color: #3b82f6;
 }
 
 .nav-label {

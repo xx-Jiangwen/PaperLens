@@ -122,7 +122,7 @@ export default {
 			return this.userInfo.nickname || 'PaperLens Reader'
 		},
 		headerHeight() {
-			return this.navBarTop + this.navBarHeight + 16
+			return this.navBarTop + this.navBarHeight + 32
 		}
 	},
 
@@ -350,6 +350,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	margin-bottom: 40px;
+		padding-top: 20px;
 	width: 100%;
 	box-sizing: border-box;
 }

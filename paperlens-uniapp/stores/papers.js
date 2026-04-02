@@ -7,15 +7,19 @@ import { getTodayPapers, getPapers, getPaper } from '../api/papers.js'
 
 export const usePapersStore = defineStore('papers', {
   state: () => ({
-    // 今日精选
+    // 一周精选
     featuredPapers: [],
     featuredLoading: false,
+    featuredPage: 1,
+    featuredHasMore: true,
+    featuredTotal: 0,
 
     // 全部论文
     allPapers: [],
     allLoading: false,
     allPage: 1,
     allHasMore: true,
+    allTotal: 0,
     selectedSource: null,
 
     // 当前论文详情
@@ -37,14 +41,20 @@ export const usePapersStore = defineStore('papers', {
 
   actions: {
     /**
-     * 获取今日精选论文
+     * 获取一周精选论文
+     * @param {number} page - 页码
      */
-    async fetchFeaturedPapers() {
+    async fetchFeaturedPapers(page = 1) {
+      this.featuredPage = page
       this.featuredLoading = true
       try {
-        const res = await getTodayPapers()
+        const res = await getTodayPapers({ page, size: 10 })
         if (res.code === 200 && res.data) {
-          this.featuredPapers = res.data
+          this.featuredPapers = res.data.items || res.data
+          this.featuredTotal = res.data.total || 0
+          this.featuredHasMore = res.data.hasMore !== undefined
+            ? res.data.hasMore
+            : (res.data.items || res.data).length >= 10
         }
         return res
       } catch (e) {
@@ -57,22 +67,15 @@ export const usePapersStore = defineStore('papers', {
 
     /**
      * 获取全部论文
-     * @param {boolean} reset - 是否重置列表
+     * @param {number} page - 页码
      */
-    async fetchAllPapers(reset = false) {
-      if (reset) {
-        this.allPage = 1
-        this.allPapers = []
-        this.allHasMore = true
-      }
-
-      if (!this.allHasMore) return { code: 200, data: this.allPapers }
-
+    async fetchAllPapers(page = 1) {
+      this.allPage = page
       this.allLoading = true
       try {
         const params = {
-          page: this.allPage,
-          size: 20
+          page,
+          size: 10
         }
         if (this.selectedSource) {
           params.source = this.selectedSource
@@ -80,15 +83,11 @@ export const usePapersStore = defineStore('papers', {
 
         const res = await getPapers(params)
         if (res.code === 200 && res.data) {
-          if (reset) {
-            this.allPapers = res.data
-          } else {
-            this.allPapers = [...this.allPapers, ...res.data]
-          }
-          this.allHasMore = res.data.length >= 20
-          if (this.allHasMore) {
-            this.allPage++
-          }
+          this.allPapers = res.data.items || res.data
+          this.allTotal = res.data.total || 0
+          this.allHasMore = res.data.hasMore !== undefined
+            ? res.data.hasMore
+            : (res.data.items || res.data).length >= 10
         }
         return res
       } catch (e) {
@@ -105,7 +104,7 @@ export const usePapersStore = defineStore('papers', {
      */
     setSelectedSource(source) {
       this.selectedSource = source
-      this.fetchAllPapers(true)
+      this.fetchAllPapers(1)
     },
 
     /**

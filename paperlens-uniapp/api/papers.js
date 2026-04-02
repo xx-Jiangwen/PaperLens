@@ -5,11 +5,18 @@
 import { request } from './client'
 
 /**
- * 获取今日论文
+ * 获取一周精选论文
+ * @param {object} params - { page?, size? }
  * @returns {Promise}
  */
-export function getTodayPapers() {
-  return request('/papers/today')
+export function getTodayPapers(params = {}) {
+  const queryParts = []
+
+  if (params.page) queryParts.push(`page=${params.page}`)
+  if (params.size) queryParts.push(`size=${params.size}`)
+
+  const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
+  return request(`/papers/today${queryString}`)
 }
 
 /**

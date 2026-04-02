@@ -4,16 +4,14 @@ from openai import AsyncOpenAI
 from app.ai.llm.base import BaseLLM, LLMConfig
 
 SUMMARIZE_SYSTEM_PROMPT = """你是一名专业的学术论文分析助手。
-请将论文信息分析为三段式结构化摘要，用中文输出：
+请用中文对论文进行简洁摘要，字数不超过100字。
 
-输出格式（严格按照此 JSON 格式）：
-{
-  "what": "【问题与方案】这篇论文解决了什么问题，提出了什么方案...",
-  "how": "【技术路径】采用了什么方法、模型或技术...",
-  "why": "【贡献与意义】主要创新点和对领域的贡献..."
-}
+摘要结构：
+1. 这篇论文研究什么问题（是什么）
+2. 采用了什么方法（怎么样）
+3. 取得了什么结果（得到了什么）
 
-要求：非简单翻译，须提炼核心，每段 2-4 句话。"""
+直接输出摘要内容，不要加任何标记或标题。"""
 
 
 class OpenAICompatibleLLM(BaseLLM):
@@ -28,11 +26,13 @@ class OpenAICompatibleLLM(BaseLLM):
         self._client = AsyncOpenAI(
             base_url=config.base_url,
             api_key=config.api_key,
+            timeout=60.0,  # 60秒超时
         )
 
     async def summarize_paper_stream(
         self, title: str, abstract: str
     ) -> AsyncIterator[tuple[str, str]]:
+        """真正的流式输出，LLM 生成一个 token 就立即返回"""
         user_prompt = f"论文标题：{title}\n\n原始摘要：{abstract}"
 
         stream = await self._client.chat.completions.create(
@@ -46,21 +46,8 @@ class OpenAICompatibleLLM(BaseLLM):
             stream=True,
         )
 
-        # 收集完整响应后解析 JSON 并按段落流式 yield
-        # 简化处理：收集完整响应，解析 JSON，然后模拟逐字符流式输出
-        full_response = ""
+        # 简化为单一摘要，统一用 'summary' 作为 section
         async for chunk in stream:
             delta = chunk.choices[0].delta.content or ""
-            full_response += delta
-
-        import json
-        try:
-            data = json.loads(full_response)
-            for section in ("what", "how", "why"):
-                text = data.get(section, "")
-                # 按词流式 yield（模拟打字机效果）
-                for char in text:
-                    yield section, char
-        except json.JSONDecodeError:
-            # 降级：将整个响应放入 what 段
-            yield "what", full_response
+            if delta:
+                yield "summary", delta

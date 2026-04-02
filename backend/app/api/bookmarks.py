@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from sqlalchemy import select, delete
+from fastapi import APIRouter, Query
+from sqlalchemy import select, delete, func
 from sqlalchemy.exc import IntegrityError
 from app.dependencies import DbSession, RequiredUserId
 from app.models.bookmark import Bookmark
@@ -9,13 +9,26 @@ router = APIRouter()
 
 
 @router.get("")
-async def list_bookmarks(db: DbSession, user_id: RequiredUserId):
-    """获取收藏列表（含论文详情）"""
+async def list_bookmarks(
+    db: DbSession,
+    user_id: RequiredUserId,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
+    """获取收藏列表（含论文详情），支持分页"""
+    # 计算总数
+    count_stmt = select(func.count()).select_from(Bookmark).where(Bookmark.user_id == user_id)
+    total = await db.scalar(count_stmt)
+
+    # 分页查询
+    offset = (page - 1) * size
     stmt = (
         select(Bookmark, Paper)
         .join(Paper, Bookmark.paper_id == Paper.id)
         .where(Bookmark.user_id == user_id)
         .order_by(Bookmark.created_at.desc())
+        .offset(offset)
+        .limit(size)
     )
     result = await db.execute(stmt)
     rows = result.all()
@@ -34,7 +47,7 @@ async def list_bookmarks(db: DbSession, user_id: RequiredUserId):
         }
         for bm, p in rows
     ]
-    return {"code": 200, "msg": "success", "data": data}
+    return {"code": 200, "msg": "success", "data": data, "total": total}
 
 
 @router.post("/{paper_id}")

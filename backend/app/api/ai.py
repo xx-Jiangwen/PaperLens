@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get("/summarize/{paper_id}/stream")
 async def summarize_stream(paper_id: str, db: DbSession, user_id: CurrentUserId):
-    """SSE 流式生成三段式摘要。
+    """SSE 流式生成摘要。
     - 已登录且有 BYOK 配置：使用用户自己的 LLM
     - 否则：使用系统官方额度
     """
@@ -25,15 +25,17 @@ async def summarize_stream(paper_id: str, db: DbSession, user_id: CurrentUserId)
         return {"code": 404, "msg": "论文不存在", "data": None}
 
     # 已有摘要直接流式返回
-    if paper.has_summary():
+    if paper.has_summary() and paper.summary_what:
         async def cached_stream():
-            for section, text in [("what", paper.summary_what), ("how", paper.summary_how), ("why", paper.summary_why)]:
-                yield f"data: {json.dumps({'section': section, 'delta': text}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'section': 'summary', 'delta': paper.summary_what}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
         return StreamingResponse(cached_stream(), media_type="text/event-stream")
 
     # 选择 LLM
     llm = await _get_user_llm(db, user_id) or create_official_llm()
+    if not llm:
+        return {"code": 400, "msg": "LLM 未配置", "data": None}
+
     summarizer = PaperSummarizer(llm)
 
     # 标记为 processing
@@ -41,18 +43,19 @@ async def summarize_stream(paper_id: str, db: DbSession, user_id: CurrentUserId)
     await db.commit()
 
     async def generate():
-        sections: dict[str, list[str]] = {"what": [], "how": [], "why": []}
+        parts: list[str] = []
         try:
             async for section, delta in summarizer.stream(paper.title, paper.abstract):
-                sections[section].append(delta)
-                yield f"data: {json.dumps({'section': section, 'delta': delta}, ensure_ascii=False)}\n\n"
+                parts.append(delta)
+                yield f"data: {json.dumps({'section': 'summary', 'delta': delta}, ensure_ascii=False)}\n\n"
 
-            # 写入数据库
+            # 写入数据库 - 使用 summary_what 存储摘要内容
+            full_summary = "".join(parts)
             await db.execute(
                 update(Paper).where(Paper.id == paper_id).values(
-                    summary_what="".join(sections["what"]),
-                    summary_how="".join(sections["how"]),
-                    summary_why="".join(sections["why"]),
+                    summary_what=full_summary,
+                    summary_how=None,
+                    summary_why=None,
                     summary_status="done",
                     summary_model=llm.config.model_name,
                 )
@@ -84,12 +87,12 @@ async def _get_user_llm(db: DbSession, user_id):
         return None
     result = await db.execute(select(UserSettings).where(UserSettings.user_id == user_id))
     s = result.scalar_one_or_none()
-    if not s or not s.llm_api_key_enc or not s.llm_base_url:
+    if not s or not s.llm_api_key_enc:
         return None
     try:
         api_key = decrypt_api_key(s.llm_api_key_enc)
         config = LLMConfig(
-            base_url=s.llm_base_url,
+            base_url=s.llm_base_url or "https://api.openai.com/v1",
             api_key=api_key,
             model_name=s.llm_model_name or "gpt-4o-mini",
         )

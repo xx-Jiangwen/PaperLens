@@ -54,8 +54,9 @@ export const useBookmarksStore = defineStore('bookmarks', {
           }
           // 更新 ID 集合
           res.data.forEach(item => {
-            if (item.paper_id) {
-              this.bookmarkedIds.add(item.paper_id)
+            const paperId = item.paper_id || item.paper?.id
+            if (paperId) {
+              this.bookmarkedIds.add(paperId)
             }
           })
           this.hasMore = res.data.length >= 20
@@ -98,8 +99,11 @@ export const useBookmarksStore = defineStore('bookmarks', {
         const res = await removeBookmark(paperId)
         if (res.code === 200) {
           this.bookmarkedIds.delete(paperId)
-          // 从列表中移除
-          this.bookmarks = this.bookmarks.filter(b => b.paper_id !== paperId)
+          // 从列表中移除 - 兼容两种数据结构
+          this.bookmarks = this.bookmarks.filter(b => {
+            const id = b.paper_id || b.paper?.id
+            return id !== paperId
+          })
         }
         return res
       } catch (e) {

@@ -10,9 +10,7 @@ export interface Paper {
   pdf_url: string | null
   comment: string | null
   summary_status: 'pending' | 'processing' | 'done' | 'failed'
-  summary_what: string | null
-  summary_how: string | null
-  summary_why: string | null
+  summary_what: string | null  // AI 摘要内容
 }
 
 export interface UserSettings {

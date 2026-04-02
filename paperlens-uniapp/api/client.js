@@ -3,8 +3,9 @@
  * 自动注入 Token，统一处理响应
  */
 
-// const BASE_URL = 'https://api.paperlens.io/api/v1'
-const BASE_URL = 'http://localhost:8000/api/v1'  // 开发环境
+import config from './config.js'
+
+const BASE_URL = config.apiUrl
 
 /**
  * 封装 uni.request

@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 
-<html lang="zh-CN"><head>
+<html class="light" lang="zh-CN"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>PaperLens - 学术动态</title>
+<title>PaperLens - 发现前沿学术</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
         theme: {
           extend: {
             colors: {
+              "outline-variant": "#c1c6d5",
+              "inverse-primary": "#aac7ff",
+              "surface-container-low": "#f3f3f5",
+              "on-secondary-fixed": "#1a1b1f",
+              "inverse-on-surface": "#f0f0f2",
+              "secondary-fixed-dim": "#c7c6cb",
+              "on-tertiary-fixed-variant": "#793000",
               "surface-variant": "#e2e2e4",
               "surface-container": "#eeeef0",
-              "surface-container-low": "#f3f3f5",
-              "on-secondary-container": "#626267",
-              "background": "#f9f9fb",
-              "on-background": "#1a1c1d",
-              "on-error": "#ffffff",
-              "surface-container-high": "#e8e8ea",
-              "on-tertiary": "#ffffff",
-              "on-surface-variant": "#414753",
-              "error-container": "#ffdad6",
-              "on-secondary": "#ffffff",
-              "tertiary-fixed-dim": "#ffb692",
-              "tertiary": "#883700",
-              "primary-fixed-dim": "#aac7ff",
-              "primary": "#004e9f",
-              "inverse-surface": "#2f3132",
-              "surface-container-highest": "#e2e2e4",
-              "primary-container": "#0066cc",
-              "on-primary-fixed": "#001b3e",
-              "secondary-fixed-dim": "#c7c6cb",
               "secondary-fixed": "#e3e2e7",
-              "inverse-primary": "#aac7ff",
-              "tertiary-fixed": "#ffdbcb",
-              "inverse-on-surface": "#f0f0f2",
-              "outline-variant": "#c1c6d5",
-              "on-tertiary-container": "#ffe3d6",
+              "primary": "#004e9f",
+              "on-tertiary-fixed": "#341100",
               "error": "#ba1a1a",
-              "surface": "#f9f9fb",
-              "on-secondary-fixed-variant": "#46464b",
-              "surface-dim": "#d9dadc",
-              "secondary-container": "#e0dfe4",
-              "surface-bright": "#f9f9fb",
-              "on-primary-fixed-variant": "#00458e",
-              "outline": "#727784",
-              "on-error-container": "#93000a",
-              "on-surface": "#1a1c1d",
-              "tertiary-container": "#af4900",
-              "primary-fixed": "#d7e3ff",
-              "on-tertiary-fixed-variant": "#793000",
-              "on-secondary-fixed": "#1a1b1f",
+              "on-tertiary": "#ffffff",
+              "on-secondary": "#ffffff",
+              "tertiary-fixed": "#ffdbcb",
               "surface-container-lowest": "#ffffff",
+              "on-error": "#ffffff",
+              "primary-fixed-dim": "#aac7ff",
               "on-primary-container": "#dfe8ff",
-              "on-primary": "#ffffff",
-              "surface-tint": "#005cba",
+              "on-primary-fixed": "#001b3e",
+              "surface-bright": "#f9f9fb",
+              "on-tertiary-container": "#ffe3d6",
+              "on-surface-variant": "#414753",
+              "tertiary-container": "#af4900",
               "secondary": "#5e5e63",
-              "on-tertiary-fixed": "#341100"
+              "surface-container-high": "#e8e8ea",
+              "surface-dim": "#d9dadc",
+              "tertiary": "#883700",
+              "on-background": "#1a1c1d",
+              "outline": "#727784",
+              "on-secondary-container": "#626267",
+              "surface-container-highest": "#e2e2e4",
+              "primary-fixed": "#d7e3ff",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed-variant": "#46464b",
+              "on-error-container": "#93000a",
+              "secondary-container": "#e0dfe4",
+              "tertiary-fixed-dim": "#ffb692",
+              "surface-tint": "#005cba",
+              "error-container": "#ffdad6",
+              "surface": "#f9f9fb",
+              "background": "#f9f9fb",
+              "on-surface": "#1a1c1d",
+              "on-primary-fixed-variant": "#00458e",
+              "primary-container": "#0066cc",
+              "inverse-surface": "#2f3132"
             },
             fontFamily: {
               "headline": ["Manrope"],
@@ -73,17 +73,17 @@
       }
     </script>
 <style>
-      body {
-        background-color: #F5F5F7;
-      }
       .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       }
-      .tonal-transition-no-border {
-        border: none ! from design system;
+      .tonal-layering {
+        box-shadow: none;
       }
-      .paper-card-shadow {
-        shadow-[0_4px_24px_rgba(0,0,0,0.04)];
+      .ambient-shadow {
+        box-shadow: 0 10px 40px rgba(26, 28, 29, 0.06);
+      }
+      body {
+        background-color: #f3f3f5; /* surface-container-low per requirements */
       }
     </style>
 <style>
@@ -91,91 +91,107 @@
       min-height: max(884px, 100dvh);
     }
   </style>
-  </head>
-<body class="font-body text-on-surface min-h-screen pb-24">
+</head>
+<body class="font-body text-on-surface">
 <!-- TopAppBar -->
-<header class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl fixed top-0 w-full z-50">
-<div class="flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto">
+<header class="fixed top-0 w-full z-50 bg-[#FFFFFF]/70 dark:bg-[#1D1D1F]/70 backdrop-blur-xl flex justify-between items-center px-6 h-16">
 <div class="flex items-center gap-4">
-<button class="text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95 duration-200 p-2 rounded-full">
-<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<button class="text-[#414753] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">menu</span>
 </button>
-<span class="text-xl font-bold text-zinc-900 dark:text-zinc-100 font-headline tracking-tight">PaperLens</span>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-xl text-[#1D1D1F] dark:text-[#F9F9FB]">PaperLens</h1>
 </div>
-<button class="text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors active:scale-95 duration-200 p-2 rounded-full">
-<span class="material-symbols-outlined" data-icon="search">search</span>
+<div class="flex items-center">
+<button class="text-[#0066CC] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">search</span>
 </button>
 </div>
 </header>
 <!-- Main Content Canvas -->
-<main class="max-w-2xl mx-auto px-6 pt-24 pb-8">
-<!-- Editorial Header -->
-<div class="mb-8">
-<h1 class="font-headline font-extrabold text-3xl tracking-tight text-on-surface">学术动态</h1>
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-4xl mx-auto">
+<!-- Section Header: Editorial Touch -->
+<div class="mb-10 pl-2 border-l-4 border-primary-container">
+<h2 class="font-headline text-display-xs text-3xl font-extrabold tracking-tight text-on-surface">学术动态</h2>
+<p class="text-on-surface-variant mt-2 font-medium">为您挑选的最新学术论文</p>
+</div><div class="flex justify-center mb-10">
+<div class="inline-flex p-1 bg-surface-container rounded-xl gap-1 w-full max-w-xs">
+<button class="flex-1 flex items-center justify-center py-1.5 text-sm font-semibold rounded-lg bg-surface-container-lowest text-primary shadow-sm transition-all">
+      一周精选
+    </button>
+<button class="flex-1 flex items-center justify-center py-1.5 text-sm font-semibold rounded-lg text-on-surface-variant hover:text-on-surface transition-all">
+      全部论文
+    </button>
 </div>
-<!-- Vertical Scrollable Feed -->
-<div class="space-y-6">
+</div>
+<!-- Feed: Bento-inspired editorial layout -->
+<div class="grid grid-cols-1 gap-8">
 <!-- Paper Card 1 -->
-<article class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all duration-300 relative group">
-<div class="flex justify-between items-start mb-3">
-<span class="bg-surface-container-high text-on-surface-variant px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider font-label">ARXIV:2403.1205</span>
-<button class="text-primary-container opacity-20 group-hover:opacity-100 transition-opacity p-1.5 -mr-1.5 -mt-1.5 active:scale-90">
-<span class="material-symbols-outlined scale-110" data-icon="bookmark" style="font-variation-settings: 'FILL' 1;">bookmark</span>
-</button>
+<article class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow relative group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
 </div>
-<h2 class="font-headline font-bold text-xl leading-tight mb-2 text-on-surface">Scaling Laws for Precision in LLM Training and Inference</h2>
-<p class="text-on-secondary-container text-sm font-medium mb-3">Tim Dettmers, Mike Lewis, Luke Zettlemoyer 等</p>
-<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3">We provide an empirical study of the scaling laws for numerical precision in Large Language Models. Our research demonstrates how bit-width affects convergence and overall model performance across various architectural configurations...</p>
+<div class="flex flex-col gap-4 max-w-[90%]">
+<span class="text-[10px] font-bold tracking-widest uppercase text-primary-container bg-primary-fixed px-2 py-0.5 rounded-full self-start">Computer Vision</span>
+<h3 class="font-headline text-2xl font-bold leading-tight text-on-surface">Scaling Up Knowledge Distillation for Vision Transformers</h3>
+<p class="text-on-surface-variant text-sm font-medium">Li, J., Zhang, R., Wang, H. 等</p>
+<div class="flex flex-wrap gap-2 mt-1">
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Transformers</span>
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Efficiency</span>
+</div>
+<p class="text-on-surface-variant text-base leading-relaxed mt-2">
+                        本文提出了一种全新的知识蒸馏框架，旨在通过大规模预训练模型引导轻量级 Vision Transformers 的学习。实验证明，该方法在不增加推理成本的前提下，显著提升了 ImageNet-1K 的分类精度...
+                    </p>
+</div>
 </article>
 <!-- Paper Card 2 -->
-<article class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all duration-300 relative group">
-<div class="flex justify-between items-start mb-3">
-<span class="bg-surface-container-high text-on-surface-variant px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider font-label">NATURE</span>
-<button class="text-primary-container p-1.5 -mr-1.5 -mt-1.5 active:scale-90">
-<span class="material-symbols-outlined scale-110" data-icon="bookmark" style="font-variation-settings: 'FILL' 1;">bookmark</span>
-</button>
+<article class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow relative group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-primary-container text-3xl" style="font-variation-settings: 'FILL' 0;">bookmark</span>
 </div>
-<h2 class="font-headline font-bold text-xl leading-tight mb-2 text-on-surface">Neural circuits for long-term memory in Drosophila</h2>
-<p class="text-on-secondary-container text-sm font-medium mb-3">Yoshinori Aso, Gerald M. Rubin, David G. Anderson 等</p>
-<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3">The ability to form and retrieve long-term memories is essential for survival. In this study, we identify a specific set of dopaminergic neurons that modulate the stability of synaptic changes during memory consolidation...</p>
+<div class="flex flex-col gap-4 max-w-[90%]">
+<span class="text-[10px] font-bold tracking-widest uppercase text-tertiary bg-tertiary-fixed px-2 py-0.5 rounded-full self-start">Natural Language Processing</span>
+<h3 class="font-headline text-2xl font-bold leading-tight text-on-surface">Long-Context Reasoning in Large Language Models: A Systematic Survey</h3>
+<p class="text-on-surface-variant text-sm font-medium">Chen, Y., Liu, P., Smith, J. 等</p>
+<div class="flex flex-wrap gap-2 mt-1">
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">LLM</span>
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Reasoning</span>
+</div>
+<p class="text-on-surface-variant text-base leading-relaxed mt-2">
+                        随着大语言模型上下文窗口的不断扩大，如何评估并提升其在超长文本下的推理能力成为核心挑战。本综述系统梳理了当前的架构改进、数据策略及评估基准...
+                    </p>
+</div>
 </article>
 <!-- Paper Card 3 -->
-<article class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all duration-300 relative group">
-<div class="flex justify-between items-start mb-3">
-<span class="bg-surface-container-high text-on-surface-variant px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider font-label">ICLR 2024</span>
-<button class="text-primary-container opacity-20 group-hover:opacity-100 transition-opacity p-1.5 -mr-1.5 -mt-1.5 active:scale-90">
-<span class="material-symbols-outlined scale-110" data-icon="bookmark" style="font-variation-settings: 'FILL' 1;">bookmark</span>
-</button>
+<article class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow relative group hover:translate-y-[-2px] transition-transform duration-300">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
 </div>
-<h2 class="font-headline font-bold text-xl leading-tight mb-2 text-on-surface">Direct Preference Optimization: Your Language Model is Secretly a Reward Model</h2>
-<p class="text-on-secondary-container text-sm font-medium mb-3">Rafael Rafailov, Archit Sharma, Eric Mitchell 等</p>
-<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3">While Reinforcement Learning from Human Feedback (RLHF) is the standard for aligning LLMs, it is computationally expensive and unstable. We introduce DPO, a simpler approach that optimizes the model directly...</p>
-</article>
-<!-- Paper Card 4 -->
-<article class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all duration-300 relative group">
-<div class="flex justify-between items-start mb-3">
-<span class="bg-surface-container-high text-on-surface-variant px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider font-label">ARXIV:2310.1205</span>
-<button class="text-primary-container opacity-20 group-hover:opacity-100 transition-opacity p-1.5 -mr-1.5 -mt-1.5 active:scale-90">
-<span class="material-symbols-outlined scale-110" data-icon="bookmark" style="font-variation-settings: 'FILL' 1;">bookmark</span>
-</button>
+<div class="flex flex-col gap-4 max-w-[90%]">
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-secondary-fixed-variant bg-secondary-fixed px-2 py-0.5 rounded-full self-start">Robotics</span>
+<h3 class="font-headline text-2xl font-bold leading-tight text-on-surface">End-to-End Policy Learning for Dexterous Manipulation in the Wild</h3>
+<p class="text-on-surface-variant text-sm font-medium">Park, S., Gupta, A., Levine, S. 等</p>
+<div class="flex flex-wrap gap-2 mt-1">
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Reinforcement Learning</span>
+<span class="px-3 py-1 rounded-full border border-surface-container-high text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Manipulation</span>
 </div>
-<h2 class="font-headline font-bold text-xl leading-tight mb-2 text-on-surface">BitNet: Scaling 1-bit Transformers for Large Language Models</h2>
-<p class="text-on-secondary-container text-sm font-medium mb-3">Hongyu Wang, Shuming Ma, Li Dong 等</p>
-<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3">We introduce BitNet, a scalable and stable 1-bit Transformer architecture designed for extremely large-scale language models. This work significantly reduces energy consumption while maintaining competitive accuracy...</p>
+<p class="text-on-surface-variant text-base leading-relaxed mt-2">
+                        灵巧手抓取一直是非结构化环境下机器人研究的难题。我们展示了一种基于视觉的端到端强化学习方案，使得多指机器手能够适应多种不同形状与材质的物体...
+                    </p>
+</div>
 </article>
 </div>
 </main>
 <!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl shadow-[0_-4px_40px_rgba(26,28,29,0.06)] rounded-t-2xl">
-<!-- 首页 - Active -->
-<a class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl px-6 py-1.5 transition-all duration-200 active:scale-90" href="#">
-<span class="material-symbols-outlined mb-0.5" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
-<span class="font-['Inter'] text-xs font-medium">首页</span>
+<nav class="fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#FFFFFF]/70 dark:bg-[#1D1D1F]/70 backdrop-blur-xl flex justify-around items-center h-20 pb-safe px-8 shadow-[0_-4px_40px_rgba(26,28,29,0.06)]">
+<!-- Active Tab: 首页 -->
+<a class="flex flex-col items-center justify-center text-[#0066CC] dark:text-[#47A1FF] bg-[#EEEEF0] dark:bg-[#414753]/30 rounded-xl px-4 py-1 active:scale-90 duration-200 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-xs font-medium mt-0.5">首页</span>
 </a>
-<!-- 个人 - Inactive -->
-<a class="flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 px-6 py-1.5 hover:opacity-80 transition-all duration-200 active:scale-90" href="#">
-<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
-<span class="font-['Inter'] text-xs font-medium">个人</span>
+<!-- Inactive Tab: 个人 -->
+<a class="flex flex-col items-center justify-center text-[#414753] dark:text-[#EEEEF0] hover:text-[#0066CC] transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-xs font-medium mt-0.5">个人</span>
 </a>
 </nav>
 </body></html>

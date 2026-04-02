@@ -90,9 +90,9 @@ async def summarize_pending_papers():
 
                 await db.execute(
                     update(Paper).where(Paper.id == paper.id).values(
-                        summary_what=summary.what,
-                        summary_how=summary.how,
-                        summary_why=summary.why,
+                        summary_what=summary.content,
+                        summary_how=None,
+                        summary_why=None,
                         summary_status="done",
                         summary_model=summary.model_used,
                     )

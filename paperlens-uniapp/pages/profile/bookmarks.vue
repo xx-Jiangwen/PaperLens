@@ -43,7 +43,7 @@
 				>
 					<view class="card-top">
 						<text class="card-title">{{ (bookmark.paper || bookmark).title }}</text>
-						<view class="bookmark-icon">
+						<view class="bookmark-icon" @tap.stop="onRemoveBookmark(bookmark)">
 							<MdIcon name="bookmark" size="44" color="#0066cc" filled />
 						</view>
 					</view>
@@ -71,16 +71,6 @@
 				<text class="empty-hint">去首页发现感兴趣的论文吧</text>
 			</view>
 		</scroll-view>
-
-		<!-- 底部导航 - 仅图标 -->
-		<view class="bottom-nav">
-			<view class="nav-item" @tap="switchTab('/pages/home/index')">
-				<MdIcon name="home" size="52" color="#a1a1aa" />
-			</view>
-			<view class="nav-item active">
-				<MdIcon name="person" size="52" color="#3b82f6" filled />
-			</view>
-		</view>
 	</view>
 </template>
 
@@ -188,6 +178,16 @@ export default {
 			if (!this.loading && this.hasMore) {
 				this.bookmarksStore.fetchBookmarks()
 			}
+		},
+
+		async onRemoveBookmark(bookmark) {
+			const paperId = bookmark.paper_id || (bookmark.paper && bookmark.paper.id)
+			if (!paperId) return
+			await this.bookmarksStore.removeFromBookmarks(paperId)
+			uni.showToast({
+				title: '已取消收藏',
+				icon: 'success'
+			})
 		}
 	}
 }
@@ -257,7 +257,7 @@ export default {
 
 .main-content {
 	flex: 1;
-	padding: 120px 16px 100px;
+	padding: 120px 16px 32px;
 	max-width: 600px;
 	margin: 0 auto;
 	width: 100%;
@@ -450,42 +450,5 @@ export default {
 	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-size: 14px;
 	color: #414753;
-}
-
-/* ========== 底部导航 - 仅图标 ========== */
-
-.bottom-nav {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: 64px;
-	padding: 16px 16px 32px;
-	background-color: rgba(255, 255, 255, 0.85);
-	border-top: 1px solid rgba(0, 0, 0, 0.04);
-	padding-bottom: calc(16px + constant(safe-area-inset-bottom));
-	padding-bottom: calc(16px + env(safe-area-inset-bottom));
-}
-
-.nav-item {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 56px;
-	height: 56px;
-	border-radius: 50%;
-	transition: all 0.2s ease;
-}
-
-.nav-item:active {
-	transform: scale(0.9);
-}
-
-.nav-item.active {
-	background-color: rgba(59, 130, 246, 0.1);
 }
 </style>

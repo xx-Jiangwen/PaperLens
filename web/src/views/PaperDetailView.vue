@@ -12,10 +12,10 @@
         <a :href="paper.pdf_url" target="_blank">PDF</a>
       </div>
 
-      <!-- AI 三段式摘要 -->
+      <!-- AI 摘要 -->
       <div class="summary-section">
         <div class="summary-header">
-          <h2>AI 结构化摘要</h2>
+          <h2>AI 摘要</h2>
           <button v-if="paper.summary_status !== 'done'" @click="generateSummary" :disabled="generating">
             {{ generating ? '生成中...' : '生成摘要' }}
           </button>
@@ -46,28 +46,24 @@ const route = useRoute()
 const userStore = useUserStore()
 const paper = ref<Paper | null>(null)
 const generating = ref(false)
-const summary = ref({ what: '', how: '', why: '' })
+const summary = ref('')
 
 onMounted(async () => {
   const { data } = await getPaper(route.params.id as string)
   paper.value = data.data
   if (paper.value?.summary_status === 'done') {
-    summary.value = {
-      what: paper.value.summary_what || '',
-      how: paper.value.summary_how || '',
-      why: paper.value.summary_why || '',
-    }
+    summary.value = paper.value.summary_what || ''
   }
 })
 
 async function generateSummary() {
   if (!paper.value) return
   generating.value = true
-  summary.value = { what: '', how: '', why: '' }
+  summary.value = ''
   await streamSummary(
     paper.value.id,
     userStore.token,
-    (section, delta) => { summary.value[section] += delta },
+    (_section, delta) => { summary.value += delta },
     () => { generating.value = false },
     (err) => { console.error(err); generating.value = false },
   )

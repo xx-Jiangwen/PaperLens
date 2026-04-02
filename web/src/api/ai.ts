@@ -6,7 +6,7 @@
 export async function streamSummary(
   paperId: string,
   token: string | null,
-  onDelta: (section: 'what' | 'how' | 'why', delta: string) => void,
+  onDelta: (section: string, delta: string) => void,
   onDone: () => void,
   onError: (err: string) => void,
 ) {

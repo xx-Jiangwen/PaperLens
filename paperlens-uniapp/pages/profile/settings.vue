@@ -34,8 +34,8 @@
 							@tap="toggleCategory"
 						>{{ cat.label }}</view>
 						<!-- 添加按钮 -->
-						<view class="add-chip">
-							<MdIcon name="add" size="28" color="#c1c6d5" />
+						<view class="add-chip" @tap="addCategory">
+							<MdIcon name="add" size="28" color="#0066cc" />
 						</view>
 					</view>
 					<text class="section-hint">选择您的核心研究领域，PaperLens 将优先为您推荐相关领域的顶级期刊论文。</text>
@@ -54,28 +54,22 @@
 						<MdIcon name="auto-awesome" size="48" color="#c1c6d5" />
 					</view>
 					<!-- 滑块 -->
-					<view class="slider-container">
-						<view class="slider-track">
-							<view class="slider-fill" :style="{ width: sliderPercent + '%' }"></view>
-							<view class="slider-thumb" :style="{ left: sliderPercent + '%' }"></view>
-						</view>
+					<view class="slider-wrapper">
+						<slider
+							:min="1"
+							:max="10"
+							:value="dailyCount"
+							:block-size="24"
+							backgroundColor="#e8e8ea"
+							activeColor="#0066cc"
+							@changing="onSliderChange"
+							@change="onSliderChange"
+						/>
 						<view class="slider-labels">
 							<text class="slider-label">1 篇</text>
 							<text class="slider-label">10 篇</text>
 						</view>
 					</view>
-					<!-- 隐藏的原生滑块 -->
-					<slider
-						class="hidden-slider"
-						:min="1"
-						:max="10"
-						:value="dailyCount"
-						:block-size="1"
-						backgroundColor="transparent"
-						activeColor="transparent"
-						@changing="onSliderChange"
-						@change="onSliderChange"
-					/>
 				</view>
 			</view>
 
@@ -87,16 +81,6 @@
 				<text class="save-hint">您的更改将立即同步至所有已登录设备。</text>
 			</view>
 		</scroll-view>
-
-		<!-- 底部导航 - 仅图标 -->
-		<view class="bottom-nav">
-			<view class="nav-item" @tap="switchTab('/pages/home/index')">
-				<MdIcon name="home" size="52" color="#a1a1aa" />
-			</view>
-			<view class="nav-item active">
-				<MdIcon name="person" size="52" color="#3b82f6" filled />
-			</view>
-		</view>
 	</view>
 </template>
 
@@ -200,6 +184,24 @@ export default {
 			this.dailyCount = e.detail.value
 		},
 
+		addCategory() {
+			uni.showModal({
+				title: '添加研究方向',
+				editable: true,
+				placeholderText: '输入分类名称',
+				success: (res) => {
+					if (res.confirm && res.content) {
+						const name = res.content.trim()
+						if (name && this.selectedCategories.length < 5) {
+							uni.showToast({ title: '已添加', icon: 'success' })
+						} else if (this.selectedCategories.length >= 5) {
+							uni.showToast({ title: '最多选择5个', icon: 'none' })
+						}
+					}
+				}
+			})
+		},
+
 		goBack() {
 			uni.navigateBack()
 		},
@@ -298,7 +300,7 @@ export default {
 
 .main-content {
 	flex: 1;
-	padding: 120px 16px 100px;
+	padding: 120px 16px 32px;
 	max-width: 600px;
 	margin: 0 auto;
 	width: 100%;
@@ -325,6 +327,8 @@ export default {
 	font-size: 14px;
 	color: #414753;
 	line-height: 1.5;
+	display: block;
+	margin-top: 8px;
 }
 
 /* ========== Section ========== */
@@ -393,7 +397,37 @@ export default {
 }
 
 .category-chip:active {
+
+.add-chip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 2px solid #0066cc;
+	border-radius: 999px;
+	background-color: rgba(0, 102, 204, 0.05);
+}
+
+.add-chip:active {
 	transform: scale(0.95);
+}
+	transform: scale(0.95);
+
+.add-chip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 2px solid #0066cc;
+	border-radius: 999px;
+	background-color: rgba(0, 102, 204, 0.05);
+}
+
+.add-chip:active {
+	transform: scale(0.95);
+}
 }
 
 .add-chip {
@@ -402,8 +436,13 @@ export default {
 	justify-content: center;
 	width: 36px;
 	height: 36px;
-	border: 2px dashed #c1c6d5;
+	border: 2px solid #0066cc;
 	border-radius: 999px;
+	background-color: rgba(0, 102, 204, 0.05);
+}
+
+.add-chip:active {
+	transform: scale(0.95);
 }
 
 /* ========== 每日推送数量卡片 ========== */
@@ -446,46 +485,10 @@ export default {
 	color: #414753;
 }
 
-/* ========== 自定义滑块 ========== */
+/* ========== 滑块 ========== */
 
-.slider-container {
-	position: relative;
-}
-
-.slider-track {
-	position: relative;
-	height: 12px;
-	display: flex;
-	align-items: center;
-}
-
-.slider-track::before {
-	content: '';
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 6px;
-	background-color: #e8e8ea;
-	border-radius: 6px;
-}
-
-.slider-fill {
-	position: absolute;
-	left: 0;
-	height: 6px;
-	background-color: #0066cc;
-	border-radius: 6px;
-}
-
-.slider-thumb {
-	position: absolute;
-	width: 24px;
-	height: 24px;
-	background-color: #ffffff;
-	border: 2px solid #0066cc;
-	border-radius: 50%;
-	transform: translateX(-50%);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.slider-wrapper {
+	width: 100%;
 }
 
 .slider-labels {
@@ -501,15 +504,6 @@ export default {
 	font-weight: 700;
 	color: rgba(65, 71, 83, 0.5);
 	letter-spacing: -0.02em;
-}
-
-.hidden-slider {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	opacity: 0;
-	height: 50px;
 }
 
 /* ========== 保存按钮 ========== */
@@ -548,42 +542,5 @@ export default {
 	color: rgba(65, 71, 83, 0.6);
 	margin-top: 16px;
 	line-height: 1.5;
-}
-
-/* ========== 底部导航 - 仅图标 ========== */
-
-.bottom-nav {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: 64px;
-	padding: 16px 16px 32px;
-	background-color: rgba(255, 255, 255, 0.85);
-	border-top: 1px solid rgba(0, 0, 0, 0.04);
-	padding-bottom: calc(16px + constant(safe-area-inset-bottom));
-	padding-bottom: calc(16px + env(safe-area-inset-bottom));
-}
-
-.nav-item {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 56px;
-	height: 56px;
-	border-radius: 50%;
-	transition: all 0.2s ease;
-}
-
-.nav-item:active {
-	transform: scale(0.9);
-}
-
-.nav-item.active {
-	background-color: rgba(59, 130, 246, 0.1);
 }
 </style>

@@ -14,7 +14,7 @@
 						<MdIcon
 							name="bookmark"
 							size="48"
-							:color="isBookmarked ? '#0066cc' : '#1a1c1d'"
+							:color="isBookmarked ? '#0066cc' : '#c1c6d5'"
 							:filled="isBookmarked"
 						/>
 					</view>
@@ -60,24 +60,39 @@
 					<MdIcon name="auto-awesome" size="36" color="#0066cc" filled />
 					<text class="ai-title">AI 摘要</text>
 				</view>
-				<view v-if="paper.summary_status === 'done'" class="ai-content">
+
+				<!-- 已生成摘要 -->
+				<view v-if="paper.summary_status === 'done' && paper.summary_what && !generatingSummary" class="ai-content">
 					<text class="ai-paragraph">{{ paper.summary_what }}</text>
-					<view class="ai-list">
-						<view class="ai-list-item">
-							<text class="bullet">•</text>
-							<text class="list-text">{{ paper.summary_how }}</text>
+				</view>
+
+				<!-- 流式生成中 -->
+				<view v-else-if="generatingSummary" class="ai-content">
+					<view v-if="streamingSummary" class="streaming-section">
+						<view class="streaming-header">
+							<view class="streaming-dot"></view>
+							<text class="streaming-label">生成中</text>
 						</view>
-						<view class="ai-list-item">
-							<text class="bullet">•</text>
-							<text class="list-text">{{ paper.summary_why }}</text>
-						</view>
+						<text class="ai-paragraph">{{ streamingSummary }}</text>
+					</view>
+					<!-- 生成中提示 -->
+					<view v-else class="ai-status">
+						<view class="loading-spinner"></view>
+						<text class="status-text">AI 正在生成摘要...</text>
 					</view>
 				</view>
-				<view v-else-if="paper.summary_status === 'processing'" class="ai-status">
-					<text>AI 摘要生成中...</text>
-				</view>
-				<view v-else class="ai-status">
-					<text>暂无 AI 摘要</text>
+
+				<!-- 无摘要/生成失败 -->
+				<view v-else class="ai-empty">
+					<view class="empty-content">
+						<MdIcon name="auto-awesome" size="64" color="#c1c6d5" />
+						<text class="empty-text" v-if="paper.summary_status === 'failed'">摘要生成失败</text>
+						<text class="empty-text" v-else>暂无 AI 摘要</text>
+						<view class="generate-btn" @tap="generateSummary">
+							<MdIcon name="auto-awesome" size="32" color="#ffffff" />
+							<text class="generate-text">生成摘要</text>
+						</view>
+					</view>
 				</view>
 			</view>
 
@@ -89,22 +104,14 @@
 				</view>
 			</view>
 		</scroll-view>
-
-		<!-- 底部导航 - 仅图标 -->
-		<view class="bottom-nav">
-			<view class="nav-item active" @tap="switchTab('/pages/home/index')">
-				<MdIcon name="home" size="52" color="#3b82f6" filled />
-			</view>
-			<view class="nav-item" @tap="switchTab('/pages/profile/index')">
-				<MdIcon name="person" size="52" color="#a1a1aa" />
-			</view>
-		</view>
 	</view>
 </template>
 
 <script>
 import { usePapersStore } from '@/stores/papers.js'
 import { useBookmarksStore } from '@/stores/bookmarks.js'
+import userStore from '@/stores/user.js'
+import { streamSummary } from '@/api/ai.js'
 import MdIcon from '@/components/MdIcon.vue'
 
 export default {
@@ -118,13 +125,15 @@ export default {
 		return { papersStore, bookmarksStore }
 	},
 
-		data() {
-			return {
-				navBarTop: 20,
-				navBarHeight: 56,
-				contentTop: 120
-			}
-		},
+	data() {
+		return {
+			navBarTop: 20,
+			navBarHeight: 56,
+			contentTop: 120,
+			generatingSummary: false,
+			streamingSummary: ''
+		}
+	},
 
 	computed: {
 		paper() {
@@ -152,7 +161,6 @@ export default {
 	},
 
 	onLoad(options) {
-		// 获取胶囊按钮位置
 		try {
 			const menuRect = uni.getMenuButtonBoundingClientRect()
 			if (menuRect) {
@@ -168,6 +176,9 @@ export default {
 
 		const id = decodeURIComponent(options.id || '')
 		if (id) {
+			if (userStore.isLoggedIn() && this.bookmarksStore.bookmarkedIds.size === 0) {
+				this.bookmarksStore.fetchBookmarks(true)
+			}
 			this.papersStore.fetchPaperDetail(id)
 		}
 	},
@@ -183,9 +194,10 @@ export default {
 
 		async onBookmark() {
 			if (!this.paper) return
+			const wasBookmarked = this.isBookmarked
 			await this.bookmarksStore.toggleBookmark(this.paper.id)
 			uni.showToast({
-				title: this.isBookmarked ? '已取消收藏' : '已收藏',
+				title: wasBookmarked ? '已取消收藏' : '已收藏',
 				icon: 'success'
 			})
 		},
@@ -202,6 +214,37 @@ export default {
 
 		switchTab(url) {
 			uni.switchTab({ url })
+		},
+
+		generateSummary() {
+			if (!this.paper || this.generatingSummary) return
+
+			// 重置流式内容
+			this.streamingSummary = ''
+			this.generatingSummary = true
+
+			streamSummary(this.paper.id, {
+				onChunk: (section, delta) => {
+					// 实时追加内容
+					this.streamingSummary += delta
+				},
+				onDone: () => {
+					this.generatingSummary = false
+					// 刷新论文详情，获取完整数据
+					this.papersStore.fetchPaperDetail(this.paper.id)
+					uni.showToast({
+						title: '摘要生成完成',
+						icon: 'success'
+					})
+				},
+				onError: (error) => {
+					this.generatingSummary = false
+					uni.showToast({
+						title: error || '生成失败',
+						icon: 'none'
+					})
+				}
+			})
 		}
 	}
 }
@@ -227,7 +270,6 @@ export default {
 	z-index: 100;
 	background-color: rgba(255, 255, 255, 0.85);
 	border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-	/* 安全区域适配 */
 	padding-top: constant(safe-area-inset-top);
 	padding-top: env(safe-area-inset-top);
 }
@@ -275,7 +317,7 @@ export default {
 
 .main-content {
 	flex: 1;
-	padding: 120px 16px 100px;
+	padding: 120px 16px 32px;
 	max-width: 600px;
 	margin: 0 auto;
 }
@@ -307,14 +349,15 @@ export default {
 
 /* ========== 作者 + 年份 ========== */
 
-	.meta-row {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 32px;
-		flex-wrap: wrap;
-	}
+.meta-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 32px;
+	flex-wrap: wrap;
+}
+
 .authors-text {
 	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-size: 14px;
@@ -400,6 +443,11 @@ export default {
 	color: #0066cc;
 }
 
+.ai-content {
+	display: flex;
+	flex-direction: column;
+}
+
 .ai-paragraph {
 	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-size: 15px;
@@ -434,12 +482,122 @@ export default {
 	line-height: 1.6;
 }
 
+/* ========== 流式生成样式 ========== */
+
+.streaming-section {
+	margin-bottom: 16px;
+}
+
+.streaming-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.streaming-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: #0066cc;
+	animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.5;
+		transform: scale(0.8);
+	}
+}
+
+.streaming-label {
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	color: #0066cc;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* ========== AI 生成中状态 ========== */
+
 .ai-status {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 24px;
+}
+
+.loading-spinner {
+	width: 32px;
+	height: 32px;
+	border: 3px solid rgba(0, 102, 204, 0.2);
+	border-top-color: #0066cc;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.status-text {
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1a1c1d;
+	margin-top: 12px;
+}
+
+/* ========== AI 空状态 ========== */
+
+.ai-empty {
+	padding: 16px;
+}
+
+.empty-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 24px;
+}
+
+.empty-text {
 	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 	font-size: 14px;
 	color: #414753;
-	text-align: center;
-	padding: 16px;
+	margin-top: 12px;
+}
+
+.generate-btn {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+	background-color: #0066cc;
+	padding: 12px 24px;
+	border-radius: 999px;
+	margin-top: 16px;
+	transition: all 0.2s ease;
+}
+
+.generate-btn:active {
+	transform: scale(0.95);
+	opacity: 0.8;
+}
+
+.generate-text {
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 600;
+	color: #ffffff;
 }
 
 /* ========== 原文摘要 ========== */
@@ -459,42 +617,5 @@ export default {
 	font-size: 15px;
 	color: #1a1c1d;
 	line-height: 1.6;
-}
-
-/* ========== 底部导航 - 仅图标 ========== */
-
-.bottom-nav {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: 64px;
-	padding: 16px 16px 32px;
-	background-color: rgba(255, 255, 255, 0.85);
-	border-top: 1px solid rgba(0, 0, 0, 0.04);
-	padding-bottom: calc(16px + constant(safe-area-inset-bottom));
-	padding-bottom: calc(16px + env(safe-area-inset-bottom));
-}
-
-.nav-item {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 56px;
-	height: 56px;
-	border-radius: 50%;
-	transition: all 0.2s ease;
-}
-
-.nav-item:active {
-	transform: scale(0.9);
-}
-
-.nav-item.active {
-	background-color: rgba(59, 130, 246, 0.1);
 }
 </style>

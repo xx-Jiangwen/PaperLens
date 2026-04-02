@@ -14,10 +14,14 @@ app.$mount()
 // #ifdef VUE3
 import { createSSRApp } from 'vue'
 import pinia from './stores'
+import config from './api/config.js'
 
 export function createApp() {
   const app = createSSRApp(App)
   app.use(pinia)
+  // 全局注入配置
+  app.provide('config', config)
+  app.config.globalProperties.$config = config
   return {
     app
   }
